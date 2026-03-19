@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
 import sys
-
+import subprocess
 
 def deploy():
     print("\n")
-    print("[CloudSentinel] Deploy command triggered")
-    print("This will deploy vulnerable infrastructure using Terraform.")
+    print("[CloudSentinel] Deploying AWS infrastructure...")
+
+    subprocess.run(["terraform", "init"], cwd="terraform/aws")
+    subprocess.run(["terraform", "apply", "-auto-approve"], cwd="terraform/aws")
+    print("You have deployed infrastructure using Terraform.")
 
 
 def scan():
@@ -20,11 +23,12 @@ def report():
     print("[CloudSentinel] Report command triggered")
     print("This will generate a unified vulnerability report.")
 
-
 def destroy():
     print("\n")
-    print("[CloudSentinel] Destroy command triggered")
-    print("This will tear down all deployed cloud infrastructure.")
+    print("[CloudSentinel] Destroying AWS infrastructure...")
+
+    subprocess.run(["terraform", "destroy", "-auto-approve"], cwd="terraform/aws")
+    print("You have torn down all deployed cloud infrastructure.")
 
 
 def main():
