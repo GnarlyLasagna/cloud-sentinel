@@ -1,0 +1,10 @@
+[
+  {
+    "provider": "aws",
+    "resource_type": "security_group",
+    "resource_id": "sg-05e6e76da049feefe",
+    "issue": "SSH open to internet",
+    "severity": "HIGH",
+    "description": "Port 22 is accessible from 0.0.0.0/0"
+  }
+]

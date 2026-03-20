@@ -8,7 +8,7 @@ from datetime import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import subprocess
-from scanner.aws_scanner import scan_open_ssh
+from scanner.engine import run_aws_checks
 
 def deploy():
     print("\n")
@@ -21,7 +21,8 @@ def scan():
     print("\n[CloudSentinel] Running AWS security scan...\n")
 
     findings = []
-    findings.extend(scan_open_ssh())
+
+    findings = run_aws_checks()
 
     print(f"Found {len(findings)} vulnerabilities:\n")
 

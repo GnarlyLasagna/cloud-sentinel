@@ -1,8 +1,11 @@
+
+# scanner/checks/open_ssh.py
+
 import subprocess
 import json
 
 
-def scan_open_ssh():
+def run():
     result = subprocess.run(
         [
             "aws", "ec2", "describe-security-groups",
@@ -14,7 +17,6 @@ def scan_open_ssh():
     )
 
     groups = json.loads(result.stdout)
-
     findings = []
 
     for group in groups:
@@ -34,4 +36,3 @@ def scan_open_ssh():
                         })
 
     return findings
-
