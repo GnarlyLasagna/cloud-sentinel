@@ -3,6 +3,8 @@
 import sys
 import os
 import json
+import csv
+from datetime import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import subprocess
@@ -16,22 +18,69 @@ def deploy():
     subprocess.run(["terraform", "apply", "-auto-approve"], cwd="terraform/aws")
 
 def scan():
-    print("\n")
-    print("[CloudSentinel] Running AWS security scan...\n")
+    print("\n[CloudSentinel] Running AWS security scan...\n")
 
-    findings = scan_open_ssh()
+    findings = []
+    findings.extend(scan_open_ssh())
+
+    print(f"Found {len(findings)} vulnerabilities:\n")
+
+    for f in findings:
+        print(f"- {f['issue']} ({f['severity']})")
 
     if not findings:
-        print("No vulnerabilities detected")
-    else:
-        print("Vulnerabilities found:\n")
-        for f in findings:
-            print(f"- {f['issue']} (Severity: {f['severity']})")
+        print("No vulnerabilities detected ✅")
+
+    # Save raw scan results ONLY
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"reports/scan_{timestamp}.json"
+
+    with open(filename, "w") as f:
+        json.dump(findings, f, indent=2)
+
+    print(f"\nScan results saved to: {filename}\n")
 
 def report():
-    print("\n")
-    print("[CloudSentinel] Report command triggered")
-    print("This will generate a unified vulnerability report.")
+    print("\n[CloudSentinel] Generating report...\n")
+
+    reports_dir = "reports"
+
+    files = [f for f in os.listdir(reports_dir) if f.startswith("scan_") and f.endswith(".json")]
+
+    if not files:
+        print("No scan data found. Run 'scan' first.\n")
+        return
+
+    latest_file = sorted(files)[-1]
+    filepath = os.path.join(reports_dir, latest_file)
+
+    with open(filepath, "r") as f:
+        findings = json.load(f)
+
+    print(f"Using scan data: {latest_file}\n")
+
+    print(f"Found {len(findings)} vulnerabilities:\n")
+
+    for fnd in findings:
+        print(f"- {fnd['issue']} ({fnd['severity']})")
+
+    # --- Generate CSV ---
+    csv_file = filepath.replace("scan_", "report_").replace(".json", ".csv")
+
+    if findings:
+        fieldnames = findings[0].keys()
+    else:
+        fieldnames = ["provider", "resource_type", "resource_id", "issue", "severity", "description"]
+
+    with open(csv_file, "w", newline="") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+        if findings:
+            writer.writerows(findings)
+
+    print(f"\nCSV report saved to: {csv_file}\n")
+
 
 def destroy():
     print("\n")

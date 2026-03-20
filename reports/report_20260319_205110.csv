@@ -1,0 +1,2 @@
+provider,resource_type,resource_id,issue,severity,description
+aws,security_group,sg-0281959155e44970c,SSH open to internet,HIGH,Port 22 is accessible from 0.0.0.0/0
