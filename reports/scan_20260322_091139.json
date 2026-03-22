@@ -1,0 +1,42 @@
+[
+  {
+    "provider": "aws",
+    "resource_type": "security_group",
+    "resource_id": "sg-00813bc4cb24a09f5",
+    "issue": "SSH open to internet",
+    "severity": "HIGH",
+    "description": "Port 22 is accessible from 0.0.0.0/0"
+  },
+  {
+    "provider": "aws",
+    "resource_type": "security_group",
+    "resource_id": "sg-00813bc4cb24a09f5",
+    "issue": "Port 80-80 open to internet",
+    "severity": "MEDIUM",
+    "description": "Ports 80-80 accessible from 0.0.0.0/0"
+  },
+  {
+    "provider": "aws",
+    "resource_type": "iam_role",
+    "resource_id": "cloudsentinel-overpermissive-role",
+    "issue": "Over-permissive IAM role",
+    "severity": "CRITICAL",
+    "description": "Role has AdministratorAccess policy attached"
+  },
+  {
+    "provider": "aws",
+    "resource_type": "cloudtrail",
+    "resource_id": "N/A",
+    "issue": "CloudTrail not enabled",
+    "severity": "HIGH",
+    "description": "No CloudTrail trails are configured"
+  },
+  {
+    "provider": "aws",
+    "resource_type": "ebs_volume",
+    "resource_id": "vol-0e27a6dffbfd3ec44",
+    "issue": "Unencrypted EBS volume",
+    "severity": "MEDIUM",
+    "description": "EBS volume is not encrypted"
+  }
+]

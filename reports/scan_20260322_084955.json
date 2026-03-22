@@ -1,0 +1,26 @@
+[
+  {
+    "provider": "aws",
+    "resource_type": "security_group",
+    "resource_id": "sg-0f77009cd7171387d",
+    "issue": "SSH open to internet",
+    "severity": "HIGH",
+    "description": "Port 22 is accessible from 0.0.0.0/0"
+  },
+  {
+    "provider": "aws",
+    "resource_type": "cloudtrail",
+    "resource_id": "N/A",
+    "issue": "CloudTrail not enabled",
+    "severity": "HIGH",
+    "description": "No CloudTrail trails are configured"
+  },
+  {
+    "provider": "aws",
+    "resource_type": "ebs_volume",
+    "resource_id": "vol-0c1a2a1afbf7c9b62",
+    "issue": "Unencrypted EBS volume",
+    "severity": "MEDIUM",
+    "description": "EBS volume is not encrypted"
+  }
+]
