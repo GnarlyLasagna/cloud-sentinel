@@ -1,0 +1,7 @@
+provider,resource_type,resource_id,issue,severity,description
+aws,security_group,sg-0ccd968048c13a555,SSH open to internet,HIGH,Port 22 is accessible from 0.0.0.0/0
+aws,security_group,sg-0ccd968048c13a555,Port 80-80 open to internet,MEDIUM,Ports 80-80 accessible from 0.0.0.0/0
+aws,s3_bucket,cloudsentinel-public-4bb04e6d,S3 bucket publicly accessible (Policy),HIGH,Bucket allows public access via bucket policy: s3:GetObject
+aws,iam_role,cloudsentinel-overpermissive-role,Over-permissive IAM role,CRITICAL,Role has AdministratorAccess policy attached
+aws,cloudtrail,N/A,CloudTrail not enabled,HIGH,No CloudTrail trails are configured
+aws,ebs_volume,vol-0ac70832a33df642b,Unencrypted EBS volume,MEDIUM,EBS volume is not encrypted

@@ -8,7 +8,7 @@ from datetime import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import subprocess
-from scanner.engine import run_aws_checks
+from scanner.engine import run_aws_checks, generate_summary
 
 def deploy():
     print("\n")
@@ -20,11 +20,10 @@ def deploy():
 def scan():
     print("\n[CloudSentinel] Running AWS security scan...\n")
 
-    findings = []
-
     findings = run_aws_checks()
+    summary = generate_summary(findings)
 
-    print(f"Found {len(findings)} vulnerabilities:\n")
+    print(f"Found {summary['total_findings']} vulnerabilities:\n")
 
     for f in findings:
         print(f"- {f['issue']} ({f['severity']})")
@@ -32,12 +31,36 @@ def scan():
     if not findings:
         print("No vulnerabilities detected ✅")
 
-    # Save raw scan results ONLY
+    # --- PRINT SUMMARY ---
+    print("\n--- Security Summary ---")
+    print(f"CRITICAL: {summary['severity_counts']['CRITICAL']}")
+    print(f"HIGH:     {summary['severity_counts']['HIGH']}")
+    print(f"MEDIUM:   {summary['severity_counts']['MEDIUM']}")
+    print(f"LOW:      {summary['severity_counts']['LOW']}")
+
+    print(f"\nRisk Score (0-10): {summary['risk_score']}")
+
+    risk_score = summary.get("risk_score", 0)
+
+    if risk_score >= 7:
+        level = "HIGH"
+    elif risk_score >= 4:
+        level = "MEDIUM"
+    else:
+        level = "LOW"
+
+    print(f"Overall Risk Level: {level}")
+    # --- SAVE JSON (UPDATED STRUCTURE) ---
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"reports/scan_{timestamp}.json"
 
+    output = {
+        "summary": summary,
+        "findings": findings
+    }
+
     with open(filename, "w") as f:
-        json.dump(findings, f, indent=2)
+        json.dump(output, f, indent=2)
 
     print(f"\nScan results saved to: {filename}\n")
 
@@ -56,7 +79,9 @@ def report():
     filepath = os.path.join(reports_dir, latest_file)
 
     with open(filepath, "r") as f:
-        findings = json.load(f)
+        data = json.load(f)
+        findings = data.get("findings", [])
+        summary = data.get("summary", {})
 
     print(f"Using scan data: {latest_file}\n")
 
@@ -64,6 +89,17 @@ def report():
 
     for fnd in findings:
         print(f"- {fnd['issue']} ({fnd['severity']})")
+
+    if not findings:
+        print("No vulnerabilities detected ✅")
+
+    print("\n--- Security Summary ---")
+    print(f"CRITICAL: {summary.get('severity_counts', {}).get('CRITICAL', 0)}")
+    print(f"HIGH:     {summary.get('severity_counts', {}).get('HIGH', 0)}")
+    print(f"MEDIUM:   {summary.get('severity_counts', {}).get('MEDIUM', 0)}")
+    print(f"LOW:      {summary.get('severity_counts', {}).get('LOW', 0)}")
+
+    print(f"\nRisk Score (0-10): {summary.get('risk_score', 0)}")
 
     # --- Generate CSV ---
     csv_file = filepath.replace("scan_", "report_").replace(".json", ".csv")
@@ -81,7 +117,6 @@ def report():
             writer.writerows(findings)
 
     print(f"\nCSV report saved to: {csv_file}\n")
-
 
 def destroy():
     print("\n")

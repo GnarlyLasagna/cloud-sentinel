@@ -30,3 +30,40 @@ def run_aws_checks():
             print(f"[ERROR] {check.__name__} failed: {e}")
 
     return findings
+
+
+#  Summary + Risk Scoring
+def generate_summary(findings):
+    severity_counts = {
+        "CRITICAL": 0,
+        "HIGH": 0,
+        "MEDIUM": 0,
+        "LOW": 0
+    }
+
+    weights = {
+        "CRITICAL": 5,
+        "HIGH": 3,
+        "MEDIUM": 2,
+        "LOW": 1
+    }
+
+    total_score = 0
+
+    for f in findings:
+        severity = f.get("severity", "LOW")
+
+        if severity in severity_counts:
+            severity_counts[severity] += 1
+
+        total_score += weights.get(severity, 1)
+
+    max_possible = len(findings) * 5 if findings else 1
+
+    normalized_score = round((total_score / max_possible) * 10, 2)
+
+    return {
+        "severity_counts": severity_counts,
+        "total_findings": len(findings),
+        "risk_score": normalized_score
+    }
