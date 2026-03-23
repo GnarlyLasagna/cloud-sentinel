@@ -5,28 +5,55 @@ import os
 import json
 import csv
 from datetime import datetime
+import subprocess
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import subprocess
-from scanner.engine import run_aws_checks, generate_summary
+from scanner.engine import run_all_checks, generate_summary
 
+# Terraform Deploy/Destroy
 def deploy():
-    print("\n")
-    print("[CloudSentinel] Deploying AWS infrastructure...")
+    print("\n[CloudSentinel] Deploying infrastructure...\n")
+    providers = ["aws", "azure"]
 
-    subprocess.run(["terraform", "init"], cwd="terraform/aws")
-    subprocess.run(["terraform", "apply", "-auto-approve"], cwd="terraform/aws")
+    for provider in providers:
+        path = f"terraform/{provider}"
+        print(f"[+] Deploying {provider.upper()}...")
+        run_terraform(["terraform", "init"], path)
+        run_terraform(["terraform", "apply", "-auto-approve"], path)
 
+    print("\n[CloudSentinel] Deployment complete.\n")
+
+def destroy():
+    print("\n[CloudSentinel] Destroying infrastructure...\n")
+    providers = ["aws", "azure"]
+
+    for provider in providers:
+        path = f"terraform/{provider}"
+        print(f"[-] Destroying {provider.upper()}...")
+        run_terraform(["terraform", "destroy", "-auto-approve"], path)
+
+
+    print("\n[CloudSentinel] Destruction complete.\n")
+
+def run_terraform(cmd, path):
+    print(f"[Terraform] Running: {' '.join(cmd)} in {path}")
+    result = subprocess.run(cmd, cwd=path)
+    if result.returncode != 0:
+        print(f"[ERROR] Terraform failed in {path}")
+        sys.exit(1)
+
+# Scan / Report
 def scan():
-    print("\n[CloudSentinel] Running AWS security scan...\n")
+    print("\n[CloudSentinel] Running security scan (AWS + Azure)...\n")
 
-    findings = run_aws_checks()
+    findings = run_all_checks()
     summary = generate_summary(findings)
 
     print(f"Found {summary['total_findings']} vulnerabilities:\n")
 
     for f in findings:
-        print(f"- {f['issue']} ({f['severity']})")
+        provider = f.get("provider", "UNKNOWN").upper()
+        print(f"[{provider}] {f['issue']} ({f['severity']})")
 
     if not findings:
         print("No vulnerabilities detected ✅")
@@ -37,38 +64,30 @@ def scan():
     print(f"HIGH:     {summary['severity_counts']['HIGH']}")
     print(f"MEDIUM:   {summary['severity_counts']['MEDIUM']}")
     print(f"LOW:      {summary['severity_counts']['LOW']}")
-
     print(f"\nRisk Score (0-10): {summary['risk_score']}")
 
     risk_score = summary.get("risk_score", 0)
-
     if risk_score >= 7:
         level = "HIGH"
     elif risk_score >= 4:
         level = "MEDIUM"
     else:
         level = "LOW"
-
     print(f"Overall Risk Level: {level}")
-    # --- SAVE JSON (UPDATED STRUCTURE) ---
+
+    # --- SAVE JSON ---
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"reports/scan_{timestamp}.json"
-
-    output = {
-        "summary": summary,
-        "findings": findings
-    }
+    output = {"summary": summary, "findings": findings}
 
     with open(filename, "w") as f:
         json.dump(output, f, indent=2)
+    print(f"\nScan results saved to: {filename}")
 
-    print(f"\nScan results saved to: {filename}\n")
 
 def report():
     print("\n[CloudSentinel] Generating report...\n")
-
     reports_dir = "reports"
-
     files = [f for f in os.listdir(reports_dir) if f.startswith("scan_") and f.endswith(".json")]
 
     if not files:
@@ -84,12 +103,9 @@ def report():
         summary = data.get("summary", {})
 
     print(f"Using scan data: {latest_file}\n")
-
     print(f"Found {len(findings)} vulnerabilities:\n")
-
     for fnd in findings:
         print(f"- {fnd['issue']} ({fnd['severity']})")
-
     if not findings:
         print("No vulnerabilities detected ✅")
 
@@ -98,12 +114,10 @@ def report():
     print(f"HIGH:     {summary.get('severity_counts', {}).get('HIGH', 0)}")
     print(f"MEDIUM:   {summary.get('severity_counts', {}).get('MEDIUM', 0)}")
     print(f"LOW:      {summary.get('severity_counts', {}).get('LOW', 0)}")
-
     print(f"\nRisk Score (0-10): {summary.get('risk_score', 0)}")
 
-    # --- Generate CSV ---
+    # Generate CSV
     csv_file = filepath.replace("scan_", "report_").replace(".json", ".csv")
-
     if findings:
         fieldnames = findings[0].keys()
     else:
@@ -112,117 +126,140 @@ def report():
     with open(csv_file, "w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-
         if findings:
             writer.writerows(findings)
 
     print(f"\nCSV report saved to: {csv_file}\n")
 
-def destroy():
-    print("\n")
-    print("[CloudSentinel] Destroying AWS infrastructure...")
-
-    subprocess.run(["terraform", "destroy", "-auto-approve"], cwd="terraform/aws")
-
-
 def run_aws_command(cmd):
+    """Run AWS CLI commands and return JSON output"""
+    import subprocess, json
+
     result = subprocess.run(cmd, capture_output=True, text=True)
-    return json.loads(result.stdout) if result.stdout else []
+    if result.returncode != 0:
+        print(f"[AWS ERROR] Command failed: {' '.join(cmd)}")
+        return []
+    try:
+        return json.loads(result.stdout) if result.stdout else []
+    except json.JSONDecodeError:
+        return []
 
 def status():
     print("\n[CloudSentinel] Checking AWS resources...\n")
-
     issues_found = False
 
-    # --- EC2 INSTANCES ---
+    # --- AWS CHECKS ---
+    # EC2 Instances
     instances = run_aws_command([
         "aws", "ec2", "describe-instances",
         "--filters", "Name=instance-state-name,Values=running,pending,stopped,stopping",
         "--query", "Reservations[*].Instances[*].InstanceId",
         "--output", "json"
     ])
-
     instance_count = sum(len(r) for r in instances)
-
-    if instance_count == 0:
-        print(f"EC2 Instances:      {instance_count} ")
-    else:
-        print(f"EC2 Instances:      {instance_count} ")
+    print(f"EC2 Instances:      {instance_count}")
+    if instance_count > 0:
         issues_found = True
 
-    # --- SECURITY GROUPS (CloudSentinel only) ---
+    # Security Groups
     sgs = run_aws_command([
         "aws", "ec2", "describe-security-groups",
         "--query", "SecurityGroups[*].GroupName",
         "--output", "json"
     ])
-
     cs_sgs = [sg for sg in sgs if "cloudsentinel" in sg.lower()]
-
-    if len(cs_sgs) == 0:
-        print(f"Security Groups:    0 ")
-    else:
-        print(f"Security Groups:    {len(cs_sgs)} ")
+    print(f"Security Groups:    {len(cs_sgs)}")
+    if cs_sgs:
         issues_found = True
 
-    # --- ELASTIC IPs ---
+    # Elastic IPs
     eips = run_aws_command([
         "aws", "ec2", "describe-addresses",
         "--query", "Addresses[*].PublicIp",
         "--output", "json"
     ])
-
-    if len(eips) == 0:
-        print(f"Elastic IPs:        0 ")
-    else:
-        print(f"Elastic IPs:        {len(eips)} ")
+    print(f"Elastic IPs:        {len(eips)}")
+    if eips:
         issues_found = True
 
-    # --- EBS VOLUMES (AVAILABLE = unattached) ---
+    # EBS Volumes (unattached)
     volumes = run_aws_command([
         "aws", "ec2", "describe-volumes",
         "--query", "Volumes[?State=='available'].VolumeId",
         "--output", "json"
     ])
+    print(f"EBS Volumes:        {len(volumes)}")
+    if volumes:
+        issues_found = True
 
-    if len(volumes) == 0:
-        print(f"EBS Volumes:        0 ")
-    else:
-        print(f"EBS Volumes:        {len(volumes)} ")
+    # --- AZURE CHECKS ---
+    print("\n[CloudSentinel] Checking Azure resources...\n")
+
+    def azure_list(cmd):
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        try:
+            return json.loads(result.stdout) if result.stdout else []
+        except json.JSONDecodeError:
+            return []
+
+
+    # Resource Groups
+    azure_rgs = azure_list(["az", "group", "list", "--query", "[].name", "-o", "json"])
+
+    # --- IGNORE DEFAULT AZURE RGs ---
+    ignored_rg_prefixes = ["networkwatcher", "microsoft-azure"]  # add any system RG prefixes here
+    user_rgs = [rg for rg in azure_rgs if not any(rg.lower().startswith(p) for p in ignored_rg_prefixes)]
+
+    print(f"Resource Groups:    {len(user_rgs)}")
+    if user_rgs:
+        issues_found = True
+
+    # Virtual Machines
+    azure_vms = azure_list(["az", "vm", "list", "--query", "[].name", "-o", "json"])
+    print(f"Virtual Machines:   {len(azure_vms)}")
+    if azure_vms:
+        issues_found = True
+
+    # Network Security Groups
+    azure_nsgs = azure_list(["az", "network", "nsg", "list", "--query", "[].name", "-o", "json"])
+    print(f"Network Security Groups: {len(azure_nsgs)}")
+    if azure_nsgs:
+        issues_found = True
+
+    # Storage Accounts
+    azure_sas = azure_list(["az", "storage", "account", "list", "--query", "[].name", "-o", "json"])
+    print(f"Storage Accounts:   {len(azure_sas)}")
+    if azure_sas:
         issues_found = True
 
     # --- FINAL STATUS ---
     print()
-
     if not issues_found:
-        print("AWS Environment Status: CLEAN \n")
+        print("Cloud Environment Status: CLEAN ✅\n")
     else:
-        print("AWS Environment Status: RESOURCES REMAIN \n")
-
-
+        print("Cloud Environment Status: RESOURCES REMAIN ⚠️\n")
+# -------------------------
+# CLI Main
+# -------------------------
 def main():
     if len(sys.argv) < 2:
-        print("\n")
-        print("Usage: cloudsentinel <command>")
-        print("Commands: deploy | scan | report | destroy")
+        print("\nUsage: cloudsentinel <command>")
+        print("Commands: deploy | scan | report | destroy | status")
         sys.exit(1)
 
     command = sys.argv[1].lower()
-
     if command == "deploy":
         deploy()
+    elif command == "destroy":
+        destroy()
     elif command == "scan":
         scan()
     elif command == "report":
         report()
-    elif command == "destroy":
-        destroy()
     elif command == "status":
         status()
     else:
         print(f"Unknown command: {command}")
-        print("Valid commands: deploy | scan | report | destroy")
-
 
 if __name__ == "__main__":
     main()

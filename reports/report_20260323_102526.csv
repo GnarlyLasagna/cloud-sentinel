@@ -1,0 +1,8 @@
+provider,resource_type,resource_id,issue,severity,description
+aws,security_group,sg-0a9b9d732a7700468,SSH open to internet,HIGH,Port 22 is accessible from 0.0.0.0/0
+aws,security_group,sg-0a9b9d732a7700468,Port 80-80 open to internet,MEDIUM,Ports 80-80 accessible from 0.0.0.0/0
+aws,s3_bucket,cloudsentinel-public-0ac84647,S3 bucket publicly accessible (Policy),HIGH,Bucket allows public access via bucket policy: s3:GetObject
+aws,iam_role,cloudsentinel-overpermissive-role,Over-permissive IAM role,CRITICAL,Role has AdministratorAccess policy attached
+aws,cloudtrail,N/A,CloudTrail not enabled,HIGH,No CloudTrail trails are configured
+aws,ebs_volume,vol-056c23eb0b74912a9,Unencrypted EBS volume,MEDIUM,EBS volume is not encrypted
+azure,storage_account,cs7f1bstore,Public blob access enabled,HIGH,Storage account allows public blob access
