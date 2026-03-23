@@ -1,0 +1,94 @@
+{
+  "summary": {
+    "severity_counts": {
+      "CRITICAL": 2,
+      "HIGH": 6,
+      "MEDIUM": 2,
+      "LOW": 0
+    },
+    "total_findings": 10,
+    "risk_score": 6.4
+  },
+  "findings": [
+    {
+      "provider": "aws",
+      "resource_type": "security_group",
+      "resource_id": "sg-08ebdeb4951361167",
+      "issue": "SSH open to internet",
+      "severity": "HIGH",
+      "description": "Port 22 is accessible from 0.0.0.0/0"
+    },
+    {
+      "provider": "aws",
+      "resource_type": "security_group",
+      "resource_id": "sg-08ebdeb4951361167",
+      "issue": "Port 80-80 open to internet",
+      "severity": "MEDIUM",
+      "description": "Ports 80-80 accessible from 0.0.0.0/0"
+    },
+    {
+      "provider": "aws",
+      "resource_type": "iam_role",
+      "resource_id": "cloudsentinel-overpermissive-role",
+      "issue": "Over-permissive IAM role",
+      "severity": "CRITICAL",
+      "description": "Role has AdministratorAccess policy attached"
+    },
+    {
+      "provider": "aws",
+      "resource_type": "cloudtrail",
+      "resource_id": "N/A",
+      "issue": "CloudTrail not enabled",
+      "severity": "HIGH",
+      "description": "No CloudTrail trails are configured"
+    },
+    {
+      "provider": "aws",
+      "resource_type": "ebs_volume",
+      "resource_id": "vol-0b6c711d580cee2ba",
+      "issue": "Unencrypted EBS volume",
+      "severity": "MEDIUM",
+      "description": "EBS volume is not encrypted"
+    },
+    {
+      "provider": "azure",
+      "resource_type": "storage_account",
+      "resource_id": "cs949dstore",
+      "issue": "Public blob access enabled",
+      "severity": "HIGH",
+      "description": "Storage account allows public blob access"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "VM Instance",
+      "resource_id": "cloudsentinel-vm",
+      "issue": "SSH open to the internet",
+      "severity": "CRITICAL",
+      "description": "Firewall allows port 22 from 0.0.0.0/0 on a public VM."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "IAM",
+      "resource_id": "serviceAccount:551262004655-compute@developer.gserviceaccount.com",
+      "issue": "Overly permissive role: roles/editor",
+      "severity": "HIGH",
+      "description": "User/service account has excessive permissions."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "IAM",
+      "resource_id": "serviceAccount:cloudsentinel-sa@cloud-sentinel-gcp.iam.gserviceaccount.com",
+      "issue": "Overly permissive role: roles/editor",
+      "severity": "HIGH",
+      "description": "User/service account has excessive permissions."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "IAM",
+      "resource_id": "user:Evandolatowski@gmail.com",
+      "issue": "Overly permissive role: roles/owner",
+      "severity": "HIGH",
+      "description": "User/service account has excessive permissions."
+    }
+  ]
+}

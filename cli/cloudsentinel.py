@@ -13,7 +13,7 @@ from scanner.engine import run_all_checks, generate_summary
 # Terraform Deploy/Destroy
 def deploy():
     print("\n[CloudSentinel] Deploying infrastructure...\n")
-    providers = ["aws", "azure"]
+    providers = ["aws", "azure", "gcp"]
 
     for provider in providers:
         path = f"terraform/{provider}"
@@ -25,7 +25,7 @@ def deploy():
 
 def destroy():
     print("\n[CloudSentinel] Destroying infrastructure...\n")
-    providers = ["aws", "azure"]
+    providers = ["aws", "azure", "gcp"]
 
     for provider in providers:
         path = f"terraform/{provider}"
@@ -230,6 +230,50 @@ def status():
     azure_sas = azure_list(["az", "storage", "account", "list", "--query", "[].name", "-o", "json"])
     print(f"Storage Accounts:   {len(azure_sas)}")
     if azure_sas:
+        issues_found = True
+
+
+# --- GCP CHECKS ---
+    print("\n[CloudSentinel] Checking GCP resources...\n")
+
+    def gcp_list(cmd):
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        try:
+            return json.loads(result.stdout) if result.stdout else []
+        except json.JSONDecodeError:
+            return []
+
+# GCP VMs
+    gcp_vms = gcp_list([
+        "gcloud", "compute", "instances", "list",
+        "--format=json"
+    ])
+    cs_vms = [vm for vm in gcp_vms if "cloudsentinel" in vm["name"].lower()]
+
+    print(f"GCP Compute Instances:  {len(cs_vms)}")
+    if cs_vms:
+        issues_found = True
+
+# GCP Storage Buckets
+    gcp_buckets = gcp_list([
+        "gcloud", "storage", "buckets", "list",
+        "--format=json"
+    ])
+    cs_buckets = [b for b in gcp_buckets if "cloudsentinel" in b["name"].lower()]
+
+    print(f"GCP Storage Buckets:    {len(cs_buckets)}")
+    if cs_buckets:
+        issues_found = True
+
+# GCP Networks
+    gcp_networks = gcp_list([
+        "gcloud", "compute", "networks", "list",
+        "--format=json"
+    ])
+    user_networks = [n for n in gcp_networks if n["name"] != "default"]
+
+    print(f"GCP Networks:           {len(user_networks)}")
+    if user_networks:
         issues_found = True
 
     # --- FINAL STATUS ---

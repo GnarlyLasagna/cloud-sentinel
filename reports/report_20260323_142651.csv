@@ -1,0 +1,11 @@
+provider,resource_type,resource_id,issue,severity,description
+aws,security_group,sg-08ebdeb4951361167,SSH open to internet,HIGH,Port 22 is accessible from 0.0.0.0/0
+aws,security_group,sg-08ebdeb4951361167,Port 80-80 open to internet,MEDIUM,Ports 80-80 accessible from 0.0.0.0/0
+aws,iam_role,cloudsentinel-overpermissive-role,Over-permissive IAM role,CRITICAL,Role has AdministratorAccess policy attached
+aws,cloudtrail,N/A,CloudTrail not enabled,HIGH,No CloudTrail trails are configured
+aws,ebs_volume,vol-0b6c711d580cee2ba,Unencrypted EBS volume,MEDIUM,EBS volume is not encrypted
+azure,storage_account,cs949dstore,Public blob access enabled,HIGH,Storage account allows public blob access
+GCP,VM Instance,cloudsentinel-vm,SSH open to the internet,CRITICAL,Firewall allows port 22 from 0.0.0.0/0 on a public VM.
+GCP,IAM,serviceAccount:551262004655-compute@developer.gserviceaccount.com,Overly permissive role: roles/editor,HIGH,User/service account has excessive permissions.
+GCP,IAM,serviceAccount:cloudsentinel-sa@cloud-sentinel-gcp.iam.gserviceaccount.com,Overly permissive role: roles/editor,HIGH,User/service account has excessive permissions.
+GCP,IAM,user:Evandolatowski@gmail.com,Overly permissive role: roles/owner,HIGH,User/service account has excessive permissions.
