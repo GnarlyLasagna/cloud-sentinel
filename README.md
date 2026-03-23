@@ -4,6 +4,37 @@ A multi-cloud vulnerability deployment and security assessment framework.
 
 ---
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+  - [Multi-Cloud Support](#multi-cloud-support)
+  - [Infrastructure as Code](#infrastructure-as-code)
+  - [Security Scanning Engine](#security-scanning-engine)
+  - [Risk Scoring System](#risk-scoring-system)
+  - [Reporting](#reporting)
+  - [Environment Cleanup](#environment-cleanup)
+- [Architecture Overview](#architecture-overview)
+- [Installation](#installation)
+  - [1. Clone the Repository](#1-clone-the-repository)
+  - [2. Install Dependencies](#2-install-dependencies)
+  - [3. Authenticate Cloud Providers](#3-authenticate-cloud-providers)
+- [Usage](#usage)
+  - [Deploy Infrastructure](#deploy-infrastructure)
+  - [Run Security Scan](#run-security-scan)
+  - [Generate Report](#generate-report)
+  - [Destroy Infrastructure](#destroy-infrastructure)
+  - [Verify Cleanup](#verify-cleanup)
+  - [Example Output](#example-output)
+  - [Security Checks Implemented](#security-checks-implemented)
+- [Disclaimer](#disclaimer)
+- [Purpose](#purpose)
+- [Future Improvements](#future-improvements)
+- [Author](#author)
+- [Why This Project Matters](#why-this-project-matters)
+- [Design Documentation](#design-documentation)
+- [License](#license)
+
 ## Overview
 
 CloudSentinel is a multi-cloud security scanning platform that:
