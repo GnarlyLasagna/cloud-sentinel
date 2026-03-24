@@ -1,6 +1,4 @@
 
-
-
 # Capstone Project Outline: Multi-Cloud Vulnerable VM Deployment and Security Assessment Framework
 ## Project Goal:
 Design and implement a self-contained, reproducible framework to deploy multiple virtual machines 
@@ -196,7 +194,7 @@ Each VM contains at least 1 detectable, meaningful vulnerability
 Vulnerability scanner detects the predefined vulnerabilities consistently
 Unified risk reporting works and is extensible
 Code is modular, documented, and reusable
-
+```
 User Commands
 (deploy / scan / destroy)
         │
@@ -224,7 +222,7 @@ Security Evaluation Engine
         ▼
 Unified Report
 (JSON / CSV / summary table)
-
+```
 
 ## Orchestration CLI Interface
 To simplify interaction with the framework, a lightweight command-line interface (CLI) will orchestrate the core project workflow.  
@@ -267,7 +265,7 @@ CloudSentinel destroy
 ```
 
 ## Repository Structure
-
+```
 cloudsentinel/
 │
 ├── terraform/
@@ -289,6 +287,7 @@ cloudsentinel/
 ├── docs/
 │
 └── README.md
+```
 
 #### extra ideas
 - Risk Scoring
