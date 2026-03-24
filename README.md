@@ -285,7 +285,7 @@ This is directly applicable to roles such as:
 ### Design Documentation
 
 For a deeper look into the architecture and planning behind CloudSentinel, see:
-[Project Design Document](design.md)
+[Project Design Document](cloudSentinelDesign.md)
 
 License
 
