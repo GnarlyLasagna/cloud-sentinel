@@ -145,13 +145,20 @@ def run_aws_command(cmd):
         return []
 
 
-
 def status():
+    import subprocess, json
+    print("\n[CloudSentinel] Checking AWS resources...\n")
     issues_found = False
 
-    print("\n[CloudSentinel] Checking AWS resources...\n")
+    # --- AWS CHECKS ---
+    def run_aws_command(cmd):
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        try:
+            return json.loads(result.stdout) if result.stdout else []
+        except json.JSONDecodeError:
+            return []
 
-    # --- AWS ---
+    # EC2 Instances
     instances = run_aws_command([
         "aws", "ec2", "describe-instances",
         "--filters", "Name=instance-state-name,Values=running,pending,stopped,stopping",
@@ -163,6 +170,7 @@ def status():
     if instance_count > 0:
         issues_found = True
 
+    # Security Groups
     sgs = run_aws_command([
         "aws", "ec2", "describe-security-groups",
         "--query", "SecurityGroups[*].GroupName",
@@ -173,16 +181,18 @@ def status():
     if cs_sgs:
         issues_found = True
 
-    buckets = run_aws_command([
+    # S3 Buckets
+    s3_buckets = run_aws_command([
         "aws", "s3api", "list-buckets",
         "--query", "Buckets[*].Name",
         "--output", "json"
     ])
-    cs_buckets = [b for b in buckets if "cloudsentinel" in b.lower()]
+    cs_buckets = [b for b in s3_buckets if "cloudsentinel" in b.lower()]
     print(f"S3 Buckets:         {len(cs_buckets)}")
     if cs_buckets:
         issues_found = True
 
+    # RDS Instances
     rds_instances = run_aws_command([
         "aws", "rds", "describe-db-instances",
         "--query", "DBInstances[*].DBInstanceIdentifier",
@@ -193,17 +203,18 @@ def status():
     if cs_rds:
         issues_found = True
 
+    # EBS Volumes (unattached)
     volumes = run_aws_command([
         "aws", "ec2", "describe-volumes",
-        "--query", "Volumes[*].VolumeId",
+        "--query", "Volumes[?State=='available'].VolumeId",
         "--output", "json"
     ])
-    cs_volumes = [v for v in volumes if "cloudsentinel" in v.lower()]
+    cs_volumes = [v for v in volumes if v]  # optional filtering
     print(f"EBS Volumes:        {len(cs_volumes)}")
     if cs_volumes:
         issues_found = True
 
-    # --- AZURE ---
+    # --- AZURE CHECKS ---
     print("\n[CloudSentinel] Checking Azure resources...\n")
 
     def azure_list(cmd):
@@ -213,29 +224,45 @@ def status():
         except json.JSONDecodeError:
             return []
 
+    # Resource Groups
     azure_rgs = azure_list(["az", "group", "list", "--query", "[].name", "-o", "json"])
-    ignored_prefixes = ["networkwatcher", "microsoft-azure"]
-    user_rgs = [rg for rg in azure_rgs if not any(rg.lower().startswith(p) for p in ignored_prefixes)]
+    ignored_rg_prefixes = ["networkwatcher", "microsoft-azure"]
+    user_rgs = [rg for rg in azure_rgs if not any(rg.lower().startswith(p) for p in ignored_rg_prefixes)]
     print(f"Resource Groups:    {len(user_rgs)}")
     if user_rgs:
         issues_found = True
 
+    # Virtual Machines
     azure_vms = azure_list(["az", "vm", "list", "--query", "[].name", "-o", "json"])
     print(f"Virtual Machines:   {len(azure_vms)}")
     if azure_vms:
         issues_found = True
 
+    # Network Security Groups
     azure_nsgs = azure_list(["az", "network", "nsg", "list", "--query", "[].name", "-o", "json"])
     print(f"Network Security Groups: {len(azure_nsgs)}")
     if azure_nsgs:
         issues_found = True
 
+    # Storage Accounts
     azure_sas = azure_list(["az", "storage", "account", "list", "--query", "[].name", "-o", "json"])
     print(f"Storage Accounts:   {len(azure_sas)}")
     if azure_sas:
         issues_found = True
 
-    # --- GCP ---
+    # Public IP Addresses
+    azure_ips = azure_list(["az", "network", "public-ip", "list", "--query", "[].name", "-o", "json"])
+    print(f"Public IP Addresses: {len(azure_ips)}")
+    if azure_ips:
+        issues_found = True
+
+    # Managed Disks (unattached)
+    azure_disks = azure_list(["az", "disk", "list", "--query", "[?managedBy==null].name", "-o", "json"])
+    print(f"Unattached Disks:   {len(azure_disks)}")
+    if azure_disks:
+        issues_found = True
+
+    # --- GCP CHECKS ---
     print("\n[CloudSentinel] Checking GCP resources...\n")
 
     def gcp_list(cmd):
@@ -245,18 +272,34 @@ def status():
         except json.JSONDecodeError:
             return []
 
+    # Compute Instances
     gcp_vms = gcp_list(["gcloud", "compute", "instances", "list", "--format=json"])
     cs_vms = [vm for vm in gcp_vms if "cloudsentinel" in vm["name"].lower()]
     print(f"GCP Compute Instances:  {len(cs_vms)}")
     if cs_vms:
         issues_found = True
 
+    # Persistent Disks (unattached)
+    gcp_disks = gcp_list(["gcloud", "compute", "disks", "list", "--format=json"])
+    unattached_disks = [d for d in gcp_disks if d.get("users") is None]
+    print(f"GCP Unattached Disks:   {len(unattached_disks)}")
+    if unattached_disks:
+        issues_found = True
+
+    # Static IPs (reserved)
+    gcp_ips = gcp_list(["gcloud", "compute", "addresses", "list", "--format=json"])
+    print(f"GCP Reserved IPs:       {len(gcp_ips)}")
+    if gcp_ips:
+        issues_found = True
+
+    # Storage Buckets
     gcp_buckets = gcp_list(["gcloud", "storage", "buckets", "list", "--format=json"])
     cs_buckets = [b for b in gcp_buckets if "cloudsentinel" in b["name"].lower()]
     print(f"GCP Storage Buckets:    {len(cs_buckets)}")
     if cs_buckets:
         issues_found = True
 
+    # Networks
     gcp_networks = gcp_list(["gcloud", "compute", "networks", "list", "--format=json"])
     user_networks = [n for n in gcp_networks if n["name"] != "default"]
     print(f"GCP Networks:           {len(user_networks)}")
@@ -270,9 +313,9 @@ def status():
     else:
         print("Cloud Environment Status: RESOURCES REMAIN ⚠️\n")
 
-# -------------------------
+
+
 # CLI Main
-# -------------------------
 def main():
     if len(sys.argv) < 2:
         print("\nUsage: cloudsentinel <command>")
