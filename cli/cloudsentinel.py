@@ -44,7 +44,7 @@ def run_terraform(cmd, path):
 
 # Scan / Report
 def scan():
-    print("\n[CloudSentinel] Running security scan (AWS + Azure)...\n")
+    print("\n[CloudSentinel] Running security scan (AWS + Azure + GCP)...\n")
 
     findings = run_all_checks()
     summary = generate_summary(findings)
