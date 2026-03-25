@@ -12,7 +12,7 @@ import scanner.aws_checks.cloudtrail as aws_cloudtrail
 import scanner.aws_checks.ebs_encryption as aws_ebs_encryption
 
 # --- AZURE ---
-import scanner.azure_checks.nsg_open_ssh as azure_nsg_open_ssh
+import scanner.azure_checks.nsg_open_ports as azure_nsg_open_ports
 import scanner.azure_checks.public_storage as azure_public_storage
 
 # --- GCP ---
@@ -61,7 +61,7 @@ def run_azure_checks():
     findings = []
 
     checks = [
-        azure_nsg_open_ssh.run,
+        azure_nsg_open_ports.run,
         azure_public_storage.run,
     ]
 
