@@ -89,11 +89,13 @@ resource "aws_instance" "vuln_ec2" {
 # No encryption, no versioning
 resource "aws_s3_bucket" "vuln_bucket" {
   bucket = "cloudsentinel-vuln-${random_id.suffix.hex}"
+  force_destroy = true  # <-- auto deletes all objects/versions when destroying
 }
 
 # Second bucket (also vulnerable)
 resource "aws_s3_bucket" "unencrypted_bucket" {
   bucket = "cloudsentinel-unencrypted-${random_id.suffix.hex}"
+  force_destroy = true  # <-- auto deletes all objects/versions when destroying
 }
 
 # IAM (OVERLY PERMISSIVE)
