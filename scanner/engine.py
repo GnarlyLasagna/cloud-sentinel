@@ -11,6 +11,12 @@ import scanner.aws_checks.iam_roles as aws_iam_roles
 import scanner.aws_checks.cloudtrail as aws_cloudtrail
 import scanner.aws_checks.ebs_encryption as aws_ebs_encryption
 
+import scanner.aws_checks.all_ports_open as aws_all_ports_open
+import scanner.aws_checks.open_rdp as aws_open_rdp
+import scanner.aws_checks.public_rds as aws_public_rds
+import scanner.aws_checks.rds_encryption as aws_rds_encryption
+import scanner.aws_checks.ebs_unattached as aws_ebs_unattached
+
 # --- AZURE ---
 import scanner.azure_checks.nsg_open_ports as azure_nsg_open_ports
 import scanner.azure_checks.public_storage as azure_public_storage
@@ -43,8 +49,14 @@ def run_aws_checks():
         aws_open_ports.run,
         aws_public_s3.run,
         aws_iam_roles.run,
-        aws_cloudtrail.run,
         aws_ebs_encryption.run,
+        aws_cloudtrail.run,
+
+        aws_all_ports_open.run,
+        aws_open_rdp.run,
+        aws_public_rds.run,
+        aws_rds_encryption.run,
+        aws_ebs_unattached.run,
     ]
 
     for check in checks:
