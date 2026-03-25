@@ -228,13 +228,13 @@ def status():
     azure_rgs = azure_list(["az", "group", "list", "--query", "[].name", "-o", "json"])
     ignored_rg_prefixes = ["networkwatcher", "microsoft-azure"]
     user_rgs = [rg for rg in azure_rgs if not any(rg.lower().startswith(p) for p in ignored_rg_prefixes)]
-    print(f"Resource Groups:    {len(user_rgs)}")
+    print(f"Resource Groups:         {len(user_rgs)}")
     if user_rgs:
         issues_found = True
 
     # Virtual Machines
     azure_vms = azure_list(["az", "vm", "list", "--query", "[].name", "-o", "json"])
-    print(f"Virtual Machines:   {len(azure_vms)}")
+    print(f"Virtual Machines:        {len(azure_vms)}")
     if azure_vms:
         issues_found = True
 
@@ -246,19 +246,19 @@ def status():
 
     # Storage Accounts
     azure_sas = azure_list(["az", "storage", "account", "list", "--query", "[].name", "-o", "json"])
-    print(f"Storage Accounts:   {len(azure_sas)}")
+    print(f"Storage Accounts:        {len(azure_sas)}")
     if azure_sas:
         issues_found = True
 
     # Public IP Addresses
     azure_ips = azure_list(["az", "network", "public-ip", "list", "--query", "[].name", "-o", "json"])
-    print(f"Public IP Addresses: {len(azure_ips)}")
+    print(f"Public IP Addresses:     {len(azure_ips)}")
     if azure_ips:
         issues_found = True
 
     # Managed Disks (unattached)
     azure_disks = azure_list(["az", "disk", "list", "--query", "[?managedBy==null].name", "-o", "json"])
-    print(f"Unattached Disks:   {len(azure_disks)}")
+    print(f"Unattached Disks:        {len(azure_disks)}")
     if azure_disks:
         issues_found = True
 
