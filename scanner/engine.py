@@ -1,6 +1,7 @@
 # scanner/engine.py
 
 import traceback
+import re
 
 # --- AWS ---
 import scanner.aws_checks.open_ssh as aws_open_ssh
@@ -17,12 +18,23 @@ import scanner.azure_checks.public_storage as azure_public_storage
 # --- GCP ---
 import scanner.gcp_checks.open_ssh as gcp_open_ssh
 import scanner.gcp_checks.public_storage as gcp_public_storage
+import scanner.gcp_checks.public_vm as gcp_public_vm
+import scanner.gcp_checks.project_ssh_keys as gcp_project_ssh_keys
 import scanner.gcp_checks.iam_roles as gcp_iam_roles
 
 
-# =========================
+# Deduplicate Findings
+def deduplicate_findings(findings):
+    seen = set()
+    unique_findings = []
+    for f in findings:
+        key = (f.get("provider"), f.get("issue"))
+        if key not in seen:
+            unique_findings.append(f)
+            seen.add(key)
+    return unique_findings
+
 # AWS Checks
-# =========================
 def run_aws_checks():
     findings = []
 
@@ -42,12 +54,9 @@ def run_aws_checks():
             print(f"[AWS ERROR] {check.__name__} failed: {e}")
             traceback.print_exc()
 
-    return findings
+    return deduplicate_findings(findings)
 
-
-# =========================
 # Azure Checks
-# =========================
 def run_azure_checks():
     findings = []
 
@@ -63,19 +72,19 @@ def run_azure_checks():
             print(f"[AZURE ERROR] {check.__name__} failed: {e}")
             traceback.print_exc()
 
-    return findings
+    return deduplicate_findings(findings)
 
 
-# =========================
 # GCP Checks
-# =========================
 def run_gcp_checks():
     findings = []
 
     checks = [
+        gcp_project_ssh_keys.run,
         gcp_open_ssh.run,
         gcp_public_storage.run,
         gcp_iam_roles.run,
+        gcp_public_vm.run,
     ]
 
     for check in checks:
@@ -85,12 +94,9 @@ def run_gcp_checks():
             print(f"[GCP ERROR] {check.__name__} failed: {e}")
             traceback.print_exc()
 
-    return findings
+    return deduplicate_findings(findings)
 
-
-# =========================
 # Run All Clouds
-# =========================
 def run_all_checks():
     findings = []
     findings.extend(run_aws_checks())
@@ -99,9 +105,7 @@ def run_all_checks():
     return findings
 
 
-# =========================
 # Summary & Risk Scoring
-# =========================
 def generate_summary(findings):
     severity_counts = {
         "CRITICAL": 0,
@@ -137,9 +141,7 @@ def generate_summary(findings):
     }
 
 
-# =========================
 # Optional: Save Findings
-# =========================
 def save_findings(filename, findings):
     import json
 

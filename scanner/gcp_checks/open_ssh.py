@@ -1,4 +1,5 @@
 
+# scanner/gcp_checks/open_ssh.py
 def run():
     import subprocess, json
 
