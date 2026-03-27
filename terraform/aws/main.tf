@@ -1,6 +1,6 @@
 # =====================================
 # CloudSentinel AWS Vulnerable Infrastructure
-# Stable + Free Tier Friendly
+# Free Tier Friendly
 # =====================================
 
 provider "aws" {

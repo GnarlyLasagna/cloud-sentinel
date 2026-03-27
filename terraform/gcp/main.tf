@@ -1,3 +1,7 @@
+# =====================================
+# CloudSentinel Azure Vulnerable Infrastructure
+# Free Tier Friendly
+# =====================================
 
 # PROVIDER
 provider "google" {

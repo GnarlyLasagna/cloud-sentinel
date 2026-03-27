@@ -1,3 +1,9 @@
+# =====================================
+# CloudSentinel Azure Vulnerable Infrastructure
+# Free Tier Friendly
+# =====================================
+
+
 
 terraform {
   required_providers {
