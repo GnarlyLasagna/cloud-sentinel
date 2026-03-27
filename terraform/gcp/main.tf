@@ -1,7 +1,6 @@
 
 # PROVIDER
 provider "google" {
-  credentials = file("/Users/evandolatowski/cloudsentinel-sa.json")
   project     = "cloud-sentinel-gcp"
   region      = var.region
 }
