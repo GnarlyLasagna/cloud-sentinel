@@ -1,0 +1,70 @@
+{
+  "summary": {
+    "severity_counts": {
+      "CRITICAL": 0,
+      "HIGH": 6,
+      "MEDIUM": 1,
+      "LOW": 0
+    },
+    "total_findings": 7,
+    "risk_score": 5.71
+  },
+  "findings": [
+    {
+      "provider": "aws",
+      "resource_type": "cloudtrail",
+      "resource_id": "N/A",
+      "issue": "CloudTrail not enabled",
+      "severity": "HIGH",
+      "description": "No CloudTrail trails are configured"
+    },
+    {
+      "provider": "azure",
+      "resource_type": "nsg",
+      "resource_id": "cloudsentinel-nsg",
+      "issue": "NSG rule 'allow-all' open to internet",
+      "severity": "HIGH",
+      "description": "NSG rule 'allow-all' allows inbound traffic from any source (['*']) on ports ['*'] with protocol '*'."
+    },
+    {
+      "provider": "azure",
+      "resource_type": "nsg",
+      "resource_id": "cloudsentinel-nsg",
+      "issue": "NSG rule 'rdp-open' open to internet",
+      "severity": "HIGH",
+      "description": "NSG rule 'rdp-open' allows inbound traffic from any source (['*']) on ports ['3389'] with protocol 'Tcp'."
+    },
+    {
+      "provider": "azure",
+      "resource_type": "nsg",
+      "resource_id": "cloudsentinel-nsg",
+      "issue": "NSG rule 'ssh-open' open to internet",
+      "severity": "HIGH",
+      "description": "NSG rule 'ssh-open' allows inbound traffic from any source (['*']) on ports ['22'] with protocol 'Tcp'."
+    },
+    {
+      "provider": "Azure",
+      "resource_type": "Storage Account",
+      "resource_id": "cs68f0store",
+      "issue": "Weak TLS version",
+      "severity": "MEDIUM",
+      "description": "Storage account allows outdated TLS versions."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "IAM",
+      "resource_id": "serviceAccount:551262004655-compute@developer.gserviceaccount.com",
+      "issue": "Overly permissive role: roles/editor",
+      "severity": "HIGH",
+      "description": "User/service account has excessive permissions."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "IAM",
+      "resource_id": "user:Evandolatowski@gmail.com",
+      "issue": "Overly permissive role: roles/owner",
+      "severity": "HIGH",
+      "description": "User/service account has excessive permissions."
+    }
+  ]
+}

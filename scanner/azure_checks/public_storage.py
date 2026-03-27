@@ -1,29 +1,53 @@
 
+# scanner/azure_checks/public_storage.py
+
 import subprocess
 import json
-
-def run_azure_command(cmd):
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    return json.loads(result.stdout) if result.stdout else []
 
 def run():
     findings = []
 
-    accounts = run_azure_command([
-        "az", "storage", "account", "list",
-        "--query", "[].{name:name, publicAccess:allowBlobPublicAccess}",
-        "-o", "json"
-    ])
+    result = subprocess.run(
+        ["az", "storage", "container", "list",
+         "--account-name", "",
+         "--auth-mode", "login",
+         "-o", "json"],
+        capture_output=True,
+        text=True
+    )
 
-    for acc in accounts:
-        if acc.get("publicAccess"):
-            findings.append({
-                "provider": "azure",
-                "resource_type": "storage_account",
-                "resource_id": acc["name"],
-                "issue": "Public blob access enabled",
-                "severity": "HIGH",
-                "description": "Storage account allows public blob access"
-            })
+    # NOTE: Azure CLI limitation → better approach:
+    accounts = subprocess.run(
+        ["az", "storage", "account", "list", "-o", "json"],
+        capture_output=True,
+        text=True
+    )
+
+    storage_accounts = json.loads(accounts.stdout) if accounts.stdout else []
+
+    for acc in storage_accounts:
+        acc_name = acc["name"]
+
+        containers_result = subprocess.run(
+            ["az", "storage", "container", "list",
+             "--account-name", acc_name,
+             "--auth-mode", "login",
+             "-o", "json"],
+            capture_output=True,
+            text=True
+        )
+
+        containers = json.loads(containers_result.stdout) if containers_result.stdout else []
+
+        for c in containers:
+            if c.get("publicAccess") in ["blob", "container"]:
+                findings.append({
+                    "provider": "Azure",
+                    "resource_type": "Storage Container",
+                    "resource_id": f"{acc_name}/{c['name']}",
+                    "issue": "Public storage container",
+                    "severity": "HIGH",
+                    "description": "Container allows anonymous public access."
+                })
 
     return findings

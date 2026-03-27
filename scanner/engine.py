@@ -21,6 +21,14 @@ import scanner.aws_checks.ebs_unattached as aws_ebs_unattached
 import scanner.azure_checks.nsg_open_ports as azure_nsg_open_ports
 import scanner.azure_checks.public_storage as azure_public_storage
 
+import scanner.azure_checks.nsg_allow_all as azure_nsg_allow_all
+import scanner.azure_checks.nsg_open_ssh as azure_nsg_open_ssh
+import scanner.azure_checks.nsg_open_rdp as azure_nsg_open_rdp
+import scanner.azure_checks.storage_https_disabled as azure_storage_https_disabled
+import scanner.azure_checks.storage_weak_tls as azure_storage_weak_tls
+import scanner.azure_checks.public_ip as azure_public_ip
+import scanner.azure_checks.defender_disabled as azure_defender_disabled
+
 # --- GCP ---
 import scanner.gcp_checks.open_ssh as gcp_open_ssh
 import scanner.gcp_checks.public_storage as gcp_public_storage
@@ -79,6 +87,13 @@ def run_azure_checks():
     checks = [
         azure_nsg_open_ports.run,
         azure_public_storage.run,
+        azure_nsg_allow_all.run,
+        azure_nsg_open_ssh.run,
+        azure_nsg_open_rdp.run,
+        azure_storage_https_disabled.run,
+        azure_storage_weak_tls.run,
+        azure_public_ip.run,
+        azure_defender_disabled.run,
     ]
 
     for check in checks:
