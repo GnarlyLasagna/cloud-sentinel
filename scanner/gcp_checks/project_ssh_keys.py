@@ -1,30 +1,34 @@
 
 # scanner/gcp_checks/project_ssh_keys.py
-import subprocess
-import json
 
 def run():
+    import subprocess, json
+
     findings = []
 
-    result = subprocess.run(
-        ["gcloud", "compute", "project-info", "describe", "--format=json"],
-        capture_output=True,
-        text=True
-    )
+    try:
+        result = subprocess.run(
+            ["gcloud", "compute", "project-info", "describe", "--format=json"],
+            capture_output=True,
+            text=True
+        )
 
-    data = json.loads(result.stdout)
+        data = json.loads(result.stdout)
 
-    metadata = data.get("commonInstanceMetadata", {}).get("items", [])
+        metadata = data.get("commonInstanceMetadata", {}).get("items", [])
 
-    for item in metadata:
-        if item.get("key") == "ssh-keys":
-            findings.append({
-                "provider": "GCP",
-                "resource_type": "project",
-                "resource_id": "global",
-                "issue": "Project-wide SSH keys configured",
-                "severity": "MEDIUM",
-                "description": "Centralized SSH keys increase attack surface"
-            })
+        for item in metadata:
+            if item.get("key") == "ssh-keys":
+                findings.append({
+                    "provider": "GCP",
+                    "resource_type": "Project",
+                    "resource_id": "global",
+                    "issue": "Project-wide SSH keys enabled",
+                    "severity": "MEDIUM",
+                    "description": "Global SSH keys increase attack surface."
+                })
+
+    except Exception as e:
+        print(f"[GCP ERROR] project_ssh_keys failed: {e}")
 
     return findings

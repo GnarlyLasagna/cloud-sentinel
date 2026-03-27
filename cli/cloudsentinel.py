@@ -14,6 +14,7 @@ from scanner.engine import run_all_checks, generate_summary
 def deploy():
     print("\n[CloudSentinel] Deploying infrastructure...\n")
     providers = ["aws", "azure", "gcp"]
+#    providers = [ "gcp"]
 
     for provider in providers:
         path = f"terraform/{provider}"

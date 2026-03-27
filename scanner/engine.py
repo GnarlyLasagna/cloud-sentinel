@@ -28,6 +28,10 @@ import scanner.gcp_checks.public_vm as gcp_public_vm
 import scanner.gcp_checks.project_ssh_keys as gcp_project_ssh_keys
 import scanner.gcp_checks.iam_roles as gcp_iam_roles
 
+import scanner.gcp_checks.open_firewall_all_ports as gcp_open_all
+import scanner.gcp_checks.unattached_disk as gcp_disk
+import scanner.gcp_checks.static_ip_unused as gcp_ip
+import scanner.gcp_checks.service_account_attached as gcp_sa
 
 # Deduplicate Findings
 def deduplicate_findings(findings):
@@ -97,6 +101,11 @@ def run_gcp_checks():
         gcp_public_storage.run,
         gcp_iam_roles.run,
         gcp_public_vm.run,
+        gcp_sa.run,
+        gcp_open_all.run,
+        gcp_disk.run,
+        gcp_ip.run,
+
     ]
 
     for check in checks:

@@ -1,0 +1,86 @@
+{
+  "summary": {
+    "severity_counts": {
+      "CRITICAL": 2,
+      "HIGH": 3,
+      "MEDIUM": 2,
+      "LOW": 2
+    },
+    "total_findings": 9,
+    "risk_score": 5.56
+  },
+  "findings": [
+    {
+      "provider": "aws",
+      "resource_type": "cloudtrail",
+      "resource_id": "N/A",
+      "issue": "CloudTrail not enabled",
+      "severity": "HIGH",
+      "description": "No CloudTrail trails are configured"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "Firewall Rule",
+      "resource_id": "cloudsentinel-ssh-open",
+      "issue": "SSH open to the internet",
+      "severity": "CRITICAL",
+      "description": "Port 22 open to 0.0.0.0/0"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "IAM",
+      "resource_id": "serviceAccount:551262004655-compute@developer.gserviceaccount.com",
+      "issue": "Overly permissive role: roles/editor",
+      "severity": "HIGH",
+      "description": "User/service account has excessive permissions."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "IAM",
+      "resource_id": "user:Evandolatowski@gmail.com",
+      "issue": "Overly permissive role: roles/owner",
+      "severity": "HIGH",
+      "description": "User/service account has excessive permissions."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "VM Instance",
+      "resource_id": "cloudsentinel-vm",
+      "issue": "VM has public IP",
+      "severity": "MEDIUM",
+      "description": "Instance is exposed to the internet via a public IP."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "VM Instance",
+      "resource_id": "cloudsentinel-vm",
+      "issue": "Service account attached to VM",
+      "severity": "MEDIUM",
+      "description": "VM is running with a service account (check for overprivilege)."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "Firewall Rule",
+      "resource_id": "cloudsentinel-open-all",
+      "issue": "Fully open firewall (all ports)",
+      "severity": "CRITICAL",
+      "description": "All TCP ports are open to the internet."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "Disk",
+      "resource_id": "cloudsentinel-orphan-disk",
+      "issue": "Unattached disk (orphaned resource)",
+      "severity": "LOW",
+      "description": "Disk exists but is not attached to any VM."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "Static IP",
+      "resource_id": "cloudsentinel-static-ip",
+      "issue": "Unused static IP",
+      "severity": "LOW",
+      "description": "Static IP reserved but not attached to any resource."
+    }
+  ]
+}
