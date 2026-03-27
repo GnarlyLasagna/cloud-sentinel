@@ -11,10 +11,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from scanner.engine import run_all_checks, generate_summary
 
 # Terraform Deploy/Destroy
-def deploy():
+def deploy(providers):
     print("\n[CloudSentinel] Deploying infrastructure...\n")
-    providers = ["aws", "azure", "gcp"]
-#    providers = [ "gcp"]
 
     for provider in providers:
         path = f"terraform/{provider}"
@@ -24,17 +22,17 @@ def deploy():
 
     print("\n[CloudSentinel] Deployment complete.\n")
 
-def destroy():
+
+def destroy(providers):
     print("\n[CloudSentinel] Destroying infrastructure...\n")
-    providers = ["aws", "azure", "gcp"]
 
     for provider in providers:
         path = f"terraform/{provider}"
         print(f"[-] Destroying {provider.upper()}...")
         run_terraform(["terraform", "destroy", "-auto-approve"], path)
 
-
     print("\n[CloudSentinel] Destruction complete.\n")
+
 
 def run_terraform(cmd, path):
     print(f"[Terraform] Running: {' '.join(cmd)} in {path}")
@@ -317,17 +315,28 @@ def status():
 
 
 # CLI Main
+
 def main():
     if len(sys.argv) < 2:
-        print("\nUsage: cloudsentinel <command>")
+        print("\nUsage: cloudsentinel <command> [-aws] [-azure] [-gcp]")
         print("Commands: deploy | scan | report | destroy | status")
         sys.exit(1)
 
     command = sys.argv[1].lower()
+    flags = sys.argv[2:]
+
+    # Determine selected providers
+    valid_providers = ["aws", "azure", "gcp"]
+    selected_providers = [f[1:] for f in flags if f.startswith("-") and f[1:] in valid_providers]
+
+    # If no flags provided → default to all
+    if not selected_providers:
+        selected_providers = valid_providers
+
     if command == "deploy":
-        deploy()
+        deploy(selected_providers)
     elif command == "destroy":
-        destroy()
+        destroy(selected_providers)
     elif command == "scan":
         scan()
     elif command == "report":
@@ -337,6 +346,7 @@ def main():
     else:
         print(f"Unknown command: {command}")
 
+        
 if __name__ == "__main__":
     main()
 
