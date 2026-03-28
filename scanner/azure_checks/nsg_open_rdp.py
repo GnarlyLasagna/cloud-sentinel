@@ -25,6 +25,7 @@ def run():
                 "provider": "Azure",
                 "resource_type": "NSG Rule",
                 "resource_id": rule.get("name"),
+                "check":"nsg_open_rdp.py",
                 "issue": "RDP open to the internet",
                 "severity": "HIGH",
                 "description": "Port 3389 exposed to 0.0.0.0/0."

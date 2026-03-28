@@ -17,6 +17,7 @@ def run():
                 findings.append({
                     "provider": "GCP",
                     "resource_type": "Storage Bucket",
+                    "check":"public_storage.py",
                     "resource_id": b["name"],
                     "issue": "Bucket ACLs allow non-uniform access",
                     "severity": "HIGH",

@@ -18,6 +18,7 @@ def run():
                 "provider": "aws",
                 "resource_type": "rds",
                 "resource_id": db["DBInstanceIdentifier"],
+                "check":"rds_encryption.py",
                 "issue": "RDS not encrypted",
                 "severity": "MEDIUM",
                 "description": "Database storage is not encrypted"

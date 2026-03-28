@@ -21,6 +21,7 @@ def run():
                 "provider": "Azure",
                 "resource_type": "Storage Account",
                 "resource_id": acc["name"],
+                "check":"storage_weak_tls.py",
                 "issue": "Weak TLS version",
                 "severity": "MEDIUM",
                 "description": "Storage account allows outdated TLS versions."

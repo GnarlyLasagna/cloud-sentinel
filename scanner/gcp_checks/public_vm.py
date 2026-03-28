@@ -36,6 +36,7 @@ def run():
                 "provider": "GCP",
                 "resource_type": "VM Instance",
                 "resource_id": vm_name,
+                "check":"public_vm.py",
                 "issue": "VM has public IP",
                 "severity": "MEDIUM",
                 "description": "Instance is exposed to the internet via a public IP.",

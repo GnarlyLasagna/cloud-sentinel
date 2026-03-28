@@ -22,6 +22,7 @@ def run():
                     "provider": "aws",
                     "resource_type": "security_group",
                     "resource_id": sg["GroupId"],
+                    "check":"all_ports_open.py",
                     "issue": "All ports open to internet",
                     "severity": "CRITICAL",
                     "description": "Security group allows ALL traffic from 0.0.0.0/0"

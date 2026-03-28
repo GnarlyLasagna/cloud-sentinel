@@ -16,7 +16,6 @@ def run():
         text=True
     )
 
-    # NOTE: Azure CLI limitation → better approach:
     accounts = subprocess.run(
         ["az", "storage", "account", "list", "-o", "json"],
         capture_output=True,
@@ -45,6 +44,7 @@ def run():
                     "provider": "Azure",
                     "resource_type": "Storage Container",
                     "resource_id": f"{acc_name}/{c['name']}",
+                    "check":"public_storage.py",
                     "issue": "Public storage container",
                     "severity": "HIGH",
                     "description": "Container allows anonymous public access."

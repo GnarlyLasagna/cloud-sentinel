@@ -59,6 +59,7 @@ def run():
                         "provider": "GCP",
                         "resource_type": "Firewall Rule",
                         "resource_id": fw.get("name"),
+                        "check":"open_ssh.py",
                         "issue": "SSH open to the internet",
                         "severity": "CRITICAL",
                         "description": f"Port 22 open to 0.0.0.0/0 on VM {vm.get('name')}"

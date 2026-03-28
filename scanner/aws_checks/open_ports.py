@@ -48,6 +48,7 @@ def run():
                             "provider": "aws",
                             "resource_type": "security_group",
                             "resource_id": group_id,
+                            "check":"open_ports.py",
                             "issue": "All ports open to internet",
                             "severity": "CRITICAL",
                             "description": "All ports are accessible from 0.0.0.0/0"
@@ -57,6 +58,7 @@ def run():
                             "provider": "aws",
                             "resource_type": "security_group",
                             "resource_id": group_id,
+                            "check":"open_ports.py",
                             "issue": f"Port {from_port}-{to_port} open to internet",
                             "severity": severity,
                             "description": f"Ports {from_port}-{to_port} accessible from 0.0.0.0/0"

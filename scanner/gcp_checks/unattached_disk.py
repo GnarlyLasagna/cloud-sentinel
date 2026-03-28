@@ -19,6 +19,7 @@ def run():
                     "provider": "GCP",
                     "resource_type": "Disk",
                     "resource_id": disk["name"],
+                    "check":"unattached_disk.py",
                     "issue": "Unattached disk (orphaned resource)",
                     "severity": "LOW",
                     "description": "Disk exists but is not attached to any VM."

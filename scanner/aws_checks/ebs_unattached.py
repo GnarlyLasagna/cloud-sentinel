@@ -18,6 +18,7 @@ def run():
                 "provider": "aws",
                 "resource_type": "ebs",
                 "resource_id": vol["VolumeId"],
+                "check":"ebs_unattached.py",
                 "issue": "Unattached EBS volume",
                 "severity": "LOW",
                 "description": "Unused volume may expose sensitive data"

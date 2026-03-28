@@ -18,6 +18,7 @@ def run():
                 findings.append({
                     "provider": "GCP",
                     "resource_type": "Static IP",
+                    "check":"static_ip_unused.py",
                     "resource_id": ip["name"],
                     "issue": "Unused static IP",
                     "severity": "LOW",

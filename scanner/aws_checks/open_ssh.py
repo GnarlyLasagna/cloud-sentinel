@@ -30,6 +30,7 @@ def run():
                             "provider": "aws",
                             "resource_type": "security_group",
                             "resource_id": group_id,
+                            "check":"open_ssh.py",
                             "issue": "SSH open to internet",
                             "severity": "HIGH",
                             "description": "Port 22 is accessible from 0.0.0.0/0"

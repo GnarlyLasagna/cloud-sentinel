@@ -23,6 +23,7 @@ def run():
                 "provider": "aws",
                 "resource_type": "ebs_volume",
                 "resource_id": vol["VolumeId"],
+                "check":"ebs_encryption.py",
                 "issue": "Unencrypted EBS volume",
                 "severity": "MEDIUM",
                 "description": "EBS volume is not encrypted"

@@ -18,6 +18,7 @@ def run():
             "provider": "aws",
             "resource_type": "cloudtrail",
             "resource_id": "N/A",
+            "check":"cloudtrail.py",
             "issue": "CloudTrail not enabled",
             "severity": "HIGH",
             "description": "No CloudTrail trails are configured"

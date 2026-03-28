@@ -39,6 +39,7 @@ def run():
                     "provider": "azure",
                     "resource_type": "nsg",
                     "resource_id": nsg["name"],
+                    "check":"nsg_open_ports.py",
                     "issue": f"NSG rule '{rule['name']}' open to internet",
                     "severity": "HIGH",
                     "description": f"NSG rule '{rule['name']}' allows inbound traffic from any source ({src_prefixes}) on ports {dst_ports} with protocol '{protocol}'."

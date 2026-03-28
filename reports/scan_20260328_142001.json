@@ -1,0 +1,174 @@
+{
+  "summary": {
+    "severity_counts": {
+      "CRITICAL": 3,
+      "HIGH": 7,
+      "MEDIUM": 4,
+      "LOW": 2
+    },
+    "total_findings": 16,
+    "risk_score": 5.75
+  },
+  "findings": [
+    {
+      "provider": "AWS",
+      "resource_type": "cloudtrail",
+      "resource_id": "N/A",
+      "issue": "CloudTrail not enabled",
+      "severity": "HIGH",
+      "description": "No CloudTrail trails are configured",
+      "vuln_id": "cloudtrail_not_enabled",
+      "check": "unknown"
+    },
+    {
+      "provider": "AZURE",
+      "resource_type": "nsg",
+      "resource_id": "cloudsentinel-nsg",
+      "issue": "NSG rule 'allow-all' open to internet",
+      "severity": "HIGH",
+      "description": "NSG rule 'allow-all' allows inbound traffic from any source (['*']) on ports ['*'] with protocol '*'.",
+      "vuln_id": "nsg_rule_'allow-all'_open_to_internet",
+      "check": "unknown"
+    },
+    {
+      "provider": "AZURE",
+      "resource_type": "nsg",
+      "resource_id": "cloudsentinel-nsg",
+      "issue": "NSG rule 'rdp-open' open to internet",
+      "severity": "HIGH",
+      "description": "NSG rule 'rdp-open' allows inbound traffic from any source (['*']) on ports ['3389'] with protocol 'Tcp'.",
+      "vuln_id": "nsg_rule_'rdp-open'_open_to_internet",
+      "check": "unknown"
+    },
+    {
+      "provider": "AZURE",
+      "resource_type": "nsg",
+      "resource_id": "cloudsentinel-nsg",
+      "issue": "NSG rule 'ssh-open' open to internet",
+      "severity": "HIGH",
+      "description": "NSG rule 'ssh-open' allows inbound traffic from any source (['*']) on ports ['22'] with protocol 'Tcp'.",
+      "vuln_id": "nsg_rule_'ssh-open'_open_to_internet",
+      "check": "unknown"
+    },
+    {
+      "provider": "AZURE",
+      "resource_type": "Storage Account",
+      "resource_id": "cs7639store",
+      "issue": "Weak TLS version",
+      "severity": "MEDIUM",
+      "description": "Storage account allows outdated TLS versions.",
+      "vuln_id": "weak_tls_version",
+      "check": "unknown"
+    },
+    {
+      "provider": "AZURE",
+      "resource_type": "Subscription",
+      "resource_id": "value",
+      "issue": "Microsoft Defender not enabled",
+      "severity": "HIGH",
+      "description": "Defender plan appears missing or not properly configured.",
+      "vuln_id": "microsoft_defender_not_enabled",
+      "check": "unknown"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "Firewall Rule",
+      "resource_id": "cloudsentinel-ssh-open",
+      "issue": "SSH open to the internet",
+      "severity": "CRITICAL",
+      "description": "Port 22 open to 0.0.0.0/0 on VM cloudsentinel-vm",
+      "vuln_id": "ssh_open_to_the_internet",
+      "check": "open_ssh.py"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "Firewall Rule",
+      "resource_id": "default-allow-ssh",
+      "issue": "SSH open to the internet",
+      "severity": "CRITICAL",
+      "description": "Port 22 open to 0.0.0.0/0 on VM cloudsentinel-vm",
+      "vuln_id": "ssh_open_to_the_internet",
+      "check": "open_ssh.py"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "IAM Role",
+      "resource_id": "roles/editor",
+      "issue": "Overly permissive role: roles/editor",
+      "severity": "HIGH",
+      "description": "Role is assigned to 2 member(s).",
+      "vuln_id": "overly_permissive_role:_roles/editor",
+      "check": "iam_roles.py"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "IAM Role",
+      "resource_id": "roles/owner",
+      "issue": "Overly permissive role: roles/owner",
+      "severity": "HIGH",
+      "description": "Role is assigned to 1 member(s).",
+      "vuln_id": "overly_permissive_role:_roles/owner",
+      "check": "iam_roles.py"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "VM Instance",
+      "resource_id": "cloudsentinel-vm",
+      "issue": "VM has public IP",
+      "severity": "MEDIUM",
+      "description": "Instance is exposed to the internet via a public IP.",
+      "vuln_id": "GCP_VM_PUBLIC_IP",
+      "check": "public_vm.py"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "VM Instance",
+      "resource_id": "cloudsentinel-vm-2",
+      "issue": "VM has public IP",
+      "severity": "MEDIUM",
+      "description": "Instance is exposed to the internet via a public IP.",
+      "vuln_id": "GCP_VM_PUBLIC_IP",
+      "check": "public_vm.py"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "VM Instance",
+      "resource_id": "cloudsentinel-vm",
+      "issue": "Service account attached to VM",
+      "severity": "MEDIUM",
+      "description": "VM is running with a service account (check for overprivilege).",
+      "vuln_id": "service_account_attached_to_vm",
+      "check": "service_account_attached.py"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "Firewall Rule",
+      "resource_id": "cloudsentinel-open-all",
+      "issue": "Fully open firewall (all ports)",
+      "severity": "CRITICAL",
+      "description": "All TCP ports are open to the internet.",
+      "vuln_id": "fully_open_firewall_(all_ports)",
+      "check": "open_firewall_all_ports.py"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "Disk",
+      "resource_id": "cloudsentinel-orphan-disk",
+      "issue": "Unattached disk (orphaned resource)",
+      "severity": "LOW",
+      "description": "Disk exists but is not attached to any VM.",
+      "vuln_id": "unattached_disk_(orphaned_resource)",
+      "check": "unattached_disk.py"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "Static IP",
+      "resource_id": "cloudsentinel-static-ip",
+      "issue": "Unused static IP",
+      "severity": "LOW",
+      "description": "Static IP reserved but not attached to any resource.",
+      "vuln_id": "unused_static_ip",
+      "check": "static_ip_unused.py"
+    }
+  ]
+}

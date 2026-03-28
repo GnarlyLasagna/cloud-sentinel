@@ -20,6 +20,7 @@ def run():
             "provider": "Azure",
             "resource_type": "Public IP",
             "resource_id": ip["name"],
+            "check":"public_ip.py",
             "issue": "Public IP address exposed",
             "severity": "MEDIUM",
             "description": "Resource has a public IP address."

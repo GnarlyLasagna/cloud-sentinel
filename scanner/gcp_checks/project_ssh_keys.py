@@ -22,6 +22,7 @@ def run():
                 findings.append({
                     "provider": "GCP",
                     "resource_type": "Project",
+                    "check":"project_ssh_keys.py",
                     "resource_id": "global",
                     "issue": "Project-wide SSH keys enabled",
                     "severity": "MEDIUM",

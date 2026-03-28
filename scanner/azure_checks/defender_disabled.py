@@ -20,25 +20,25 @@ def run():
         plans = json.loads(result.stdout)
 
         for plan in plans:
-            # ✅ Handle case where Azure returns strings instead of dicts
             if isinstance(plan, str):
                 findings.append({
                     "provider": "Azure",
                     "resource_type": "Subscription",
                     "resource_id": plan,
+                    "check":"defender_disabled.py",
                     "issue": "Microsoft Defender not enabled",
                     "severity": "HIGH",
                     "description": "Defender plan appears missing or not properly configured."
                 })
                 continue
 
-            # ✅ Normal expected case
             if isinstance(plan, dict):
                 if plan.get("pricingTier") == "Free":
                     findings.append({
                         "provider": "Azure",
                         "resource_type": "Subscription",
                         "resource_id": plan.get("name", "unknown"),
+                        "check":"defender_disabled.py",
                         "issue": "Microsoft Defender not enabled",
                         "severity": "HIGH",
                         "description": "Advanced threat protection is not enabled."

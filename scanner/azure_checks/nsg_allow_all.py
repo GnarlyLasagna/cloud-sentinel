@@ -27,6 +27,7 @@ def run():
                     "provider": "Azure",
                     "resource_type": "NSG",
                     "resource_id": nsg["nsg"],
+                    "check":"nsg_allow_all.py",
                     "issue": "NSG allows ALL inbound traffic",
                     "severity": "CRITICAL",
                     "description": "Inbound rule allows all traffic from any source."

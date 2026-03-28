@@ -27,6 +27,7 @@ def run():
                     "provider": "aws",
                     "resource_type": "s3_bucket",
                     "resource_id": bucket,
+                    "check":"public_s3.py",
                     "issue": "S3 bucket publicly accessible (ACL)",
                     "severity": "HIGH",
                     "description": f"Bucket allows {permission} access to everyone via ACL"
@@ -50,6 +51,7 @@ def run():
                         "provider": "aws",
                         "resource_type": "s3_bucket",
                         "resource_id": bucket,
+                        "check":"public_s3.py",
                         "issue": "S3 bucket publicly accessible (Policy)",
                         "severity": "HIGH",
                         "description": f"Bucket allows public access via bucket policy: {stmt.get('Action')}"

@@ -18,6 +18,7 @@ def run():
                 "provider": "aws",
                 "resource_type": "rds",
                 "resource_id": db["DBInstanceIdentifier"],
+                "check":"public_rds.py",
                 "issue": "RDS publicly accessible",
                 "severity": "HIGH",
                 "description": "Database is exposed to the internet"

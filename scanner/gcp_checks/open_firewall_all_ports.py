@@ -40,6 +40,7 @@ def run():
                 findings.append({
                     "provider": "GCP",
                     "resource_type": "Firewall Rule",
+                    "check":"open_firewall_all_ports.py",
                     "resource_id": fw.get("name"),
                     "issue": "Fully open firewall (all ports)",
                     "severity": "CRITICAL",

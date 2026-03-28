@@ -19,6 +19,7 @@ def run():
                 findings.append({
                     "provider": "GCP",
                     "resource_type": "VM Instance",
+                    "check":"service_account_attached.py",
                     "resource_id": vm["name"],
                     "issue": "Service account attached to VM",
                     "severity": "MEDIUM",

@@ -21,6 +21,7 @@ def run():
                 "provider": "Azure",
                 "resource_type": "Storage Account",
                 "resource_id": acc["name"],
+                "check":"storage_https_disabled.py",
                 "issue": "HTTPS not enforced",
                 "severity": "MEDIUM",
                 "description": "Storage account allows HTTP traffic."

@@ -27,6 +27,7 @@ def run():
                 findings.append({
                     "provider": "aws",
                     "resource_type": "iam_role",
+                    "check":"iam_roles.py",
                     "resource_id": role,
                     "issue": "Over-permissive IAM role",
                     "severity": "CRITICAL",

@@ -21,6 +21,7 @@ def run():
                             "provider": "aws",
                             "resource_type": "security_group",
                             "resource_id": sg["GroupId"],
+                            "check":"open_rdp.py",
                             "issue": "RDP open to internet",
                             "severity": "HIGH",
                             "description": "Port 3389 open to the world"
