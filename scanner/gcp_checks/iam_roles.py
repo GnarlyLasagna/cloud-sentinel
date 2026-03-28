@@ -48,6 +48,7 @@ def run():
                 findings.append({
                     "provider": "GCP",
                     "resource_type": "IAM Role",
+                    "check":"iam_roles.py",
                     "resource_id": role,
                     "issue": f"Overly permissive role: {role}",
                     "severity": "HIGH",

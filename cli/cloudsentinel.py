@@ -42,6 +42,7 @@ def run_terraform(cmd, path):
         sys.exit(1)
 
 # Scan / Report
+
 def scan():
     print("\n[CloudSentinel] Running security scan (AWS + Azure + GCP)...\n")
 
@@ -50,19 +51,40 @@ def scan():
 
     print(f"Found {summary['total_findings']} vulnerabilities:\n")
 
-    for f in findings:
-        provider = f.get("provider", "UNKNOWN").upper()
-        print(f"[{provider}] {f['issue']} ({f['severity']})")
-
     if not findings:
         print("No vulnerabilities detected ✅")
+        return
 
-    # --- PRINT SUMMARY ---
+    # GROUP FINDINGS BY PROVIDER
+    grouped = {}
+
+    for f in findings:
+        provider = f.get("provider", "UNKNOWN").upper()
+        grouped.setdefault(provider, []).append(f)
+
+# PRINT DETAILED FINDINGS
+    for provider, items in grouped.items():
+        print(f"\n=== {provider} ===")
+
+        for f in items:
+            issue = f.get("issue", "Unknown Issue")
+            severity = f.get("severity", "UNKNOWN")
+            resource = f.get("resource_id", "unknown-resource")
+            rtype = f.get("resource_type", "unknown-type")
+            check = f.get("check", "unknown")  # <-- THIS is the fix
+
+            print(f"[{severity}] {issue}")
+            print(f"  ↳ Resource: {resource} ({rtype})")
+            print(f"  ↳ Source:   {check}")
+            print()
+
+    # SUMMARY
     print("\n--- Security Summary ---")
     print(f"CRITICAL: {summary['severity_counts']['CRITICAL']}")
     print(f"HIGH:     {summary['severity_counts']['HIGH']}")
     print(f"MEDIUM:   {summary['severity_counts']['MEDIUM']}")
     print(f"LOW:      {summary['severity_counts']['LOW']}")
+
     print(f"\nRisk Score (0-10): {summary['risk_score']}")
 
     risk_score = summary.get("risk_score", 0)
@@ -72,15 +94,21 @@ def scan():
         level = "MEDIUM"
     else:
         level = "LOW"
+
     print(f"Overall Risk Level: {level}")
 
-    # --- SAVE JSON ---
+    # SAVE JSON (UNCHANGED)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"reports/scan_{timestamp}.json"
-    output = {"summary": summary, "findings": findings}
+
+    output = {
+        "summary": summary,
+        "findings": findings
+    }
 
     with open(filename, "w") as f:
         json.dump(output, f, indent=2)
+
     print(f"\nScan results saved to: {filename}")
 
 

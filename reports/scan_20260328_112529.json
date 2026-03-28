@@ -1,0 +1,112 @@
+{
+  "summary": {
+    "severity_counts": {
+      "CRITICAL": 3,
+      "HIGH": 4,
+      "MEDIUM": 3,
+      "LOW": 2
+    },
+    "total_findings": 12,
+    "risk_score": 5.83
+  },
+  "findings": [
+    {
+      "provider": "aws",
+      "resource_type": "cloudtrail",
+      "resource_id": "N/A",
+      "issue": "CloudTrail not enabled",
+      "severity": "HIGH",
+      "description": "No CloudTrail trails are configured"
+    },
+    {
+      "provider": "Azure",
+      "resource_type": "Subscription",
+      "resource_id": "value",
+      "issue": "Microsoft Defender not enabled",
+      "severity": "HIGH",
+      "description": "Defender plan appears missing or not properly configured."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "Firewall Rule",
+      "resource_id": "cloudsentinel-ssh-open",
+      "issue": "SSH open to the internet",
+      "severity": "CRITICAL",
+      "description": "Port 22 open to 0.0.0.0/0 on VM cloudsentinel-vm"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "Firewall Rule",
+      "resource_id": "default-allow-ssh",
+      "issue": "SSH open to the internet",
+      "severity": "CRITICAL",
+      "description": "Port 22 open to 0.0.0.0/0 on VM cloudsentinel-vm"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "IAM Role",
+      "resource_id": "roles/editor",
+      "issue": "Overly permissive role: roles/editor",
+      "severity": "HIGH",
+      "description": "Role is assigned to 2 member(s)."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "IAM Role",
+      "resource_id": "roles/owner",
+      "issue": "Overly permissive role: roles/owner",
+      "severity": "HIGH",
+      "description": "Role is assigned to 1 member(s)."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "VM Instance",
+      "resource_id": "cloudsentinel-vm",
+      "issue": "VM has public IP",
+      "severity": "MEDIUM",
+      "description": "Instance is exposed to the internet via a public IP.",
+      "vuln_id": "GCP_VM_PUBLIC_IP"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "VM Instance",
+      "resource_id": "cloudsentinel-vm-2",
+      "issue": "VM has public IP",
+      "severity": "MEDIUM",
+      "description": "Instance is exposed to the internet via a public IP.",
+      "vuln_id": "GCP_VM_PUBLIC_IP"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "VM Instance",
+      "resource_id": "cloudsentinel-vm",
+      "issue": "Service account attached to VM",
+      "severity": "MEDIUM",
+      "description": "VM is running with a service account (check for overprivilege)."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "Firewall Rule",
+      "resource_id": "cloudsentinel-open-all",
+      "issue": "Fully open firewall (all ports)",
+      "severity": "CRITICAL",
+      "description": "All TCP ports are open to the internet."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "Disk",
+      "resource_id": "cloudsentinel-orphan-disk",
+      "issue": "Unattached disk (orphaned resource)",
+      "severity": "LOW",
+      "description": "Disk exists but is not attached to any VM."
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "Static IP",
+      "resource_id": "cloudsentinel-static-ip",
+      "issue": "Unused static IP",
+      "severity": "LOW",
+      "description": "Static IP reserved but not attached to any resource."
+    }
+  ]
+}

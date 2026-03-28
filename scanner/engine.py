@@ -2,6 +2,8 @@
 import traceback
 import json
 
+# CONFIG
+
 # AWS CHECKS
 import scanner.aws_checks.open_ssh as aws_open_ssh
 import scanner.aws_checks.open_ports as aws_open_ports
@@ -40,6 +42,23 @@ import scanner.gcp_checks.service_account_attached as gcp_sa
 
 # HELPERS
 
+
+def normalize_finding(f):
+    issue = f.get("issue", "unknown issue")
+
+    return {
+        "provider": (f.get("provider") or "UNKNOWN").upper(),
+        "resource_type": f.get("resource_type", "unknown"),
+        "resource_id": f.get("resource_id", "unknown"),
+        "issue": issue,
+        "severity": f.get("severity", "LOW").upper(),
+        "description": f.get("description", ""),
+
+        "vuln_id": f.get("vuln_id") or issue.lower().replace(" ", "_"),
+        "check": f.get("check", "unknown")
+    }
+
+
 def safe_run_check(check, provider):
     try:
         result = check()
@@ -47,16 +66,18 @@ def safe_run_check(check, provider):
         if not result:
             return []
 
-        if not isinstance(result, list):
-            print(f"[{provider} WARNING] {check.__name__} did not return a list")
-            return []
-
         valid = []
+        check_name = check.__module__.split(".")[-1]
+
         for f in result:
             if isinstance(f, dict) and "issue" in f:
-                valid.append(f)
-            else:
-                print(f"[{provider} WARNING] Invalid finding format in {check.__name__}")
+                normalized = normalize_finding(f)
+
+                # ensure check is present
+                if "check" not in normalized:
+                    normalized["check"] = check_name
+
+                valid.append(normalized)
 
         return valid
 
@@ -64,6 +85,7 @@ def safe_run_check(check, provider):
         print(f"[{provider} ERROR] {check.__name__} failed: {e}")
         traceback.print_exc()
         return []
+
 
 def deduplicate_findings(findings):
     seen = set()
@@ -75,14 +97,16 @@ def deduplicate_findings(findings):
         resource_type = (f.get("resource_type") or "").lower().strip()
         resource_id = (f.get("resource_id") or "").lower().strip()
 
-        key = (provider, issue, resource_type, resource_id)
+        # SAFE access to vuln_id
+        vuln_id = (f.get("vuln_id") or issue.lower().replace(" ", "_")).strip()
+
+        key = (provider, vuln_id, resource_id)
 
         if key not in seen:
             seen.add(key)
             unique.append(f)
 
     return unique
-
 
 
 # AWS
@@ -145,7 +169,6 @@ def run_gcp_checks():
         gcp_disk.run,
         gcp_ip.run,
     ]
-    
 
     findings = []
     for check in checks:
@@ -159,13 +182,9 @@ def run_gcp_checks():
 def run_account_checks():
     findings = []
 
-    try:
-        findings.extend(safe_run_check(aws_cloudtrail.run, "AWS"))
-        findings.extend(safe_run_check(azure_defender_disabled.run, "AZURE"))
-        findings.extend(safe_run_check(gcp_iam_roles.run, "GCP"))
-
-    except Exception as e:
-        print(f"[ACCOUNT ERROR] {e}")
+    findings.extend(safe_run_check(aws_cloudtrail.run, "AWS"))
+    findings.extend(safe_run_check(azure_defender_disabled.run, "AZURE"))
+    findings.extend(safe_run_check(gcp_iam_roles.run, "GCP"))
 
     return findings
 
@@ -173,19 +192,19 @@ def run_account_checks():
 # MAIN ENGINE
 
 def run_all_checks():
-    resource_findings = []
+    findings = []
 
-    resource_findings.extend(run_aws_checks())
-    resource_findings.extend(run_azure_checks())
-    resource_findings.extend(run_gcp_checks())
+    findings.extend(run_aws_checks())
+    findings.extend(run_azure_checks())
+    findings.extend(run_gcp_checks())
+    findings.extend(run_account_checks())
 
-    if len(resource_findings) == 0:
-        print("\n[INFO] No vulnerable resources found.\n")
+    findings = deduplicate_findings(findings)
 
-    account_findings = run_account_checks()
+    if len(findings) == 0:
+        print("\n[INFO] No vulnerabilities found.\n")
 
-    all_findings = resource_findings + account_findings
-    return deduplicate_findings(all_findings)
+    return findings
 
 
 # SUMMARY
@@ -208,7 +227,7 @@ def generate_summary(findings):
     total_score = 0
 
     for f in findings:
-        severity = f.get("severity", "LOW")
+        severity = f["severity"]
 
         if severity in severity_counts:
             severity_counts[severity] += 1
