@@ -1,26 +1,23 @@
-# scanner/engine.py
 
 import traceback
-import re
+import json
 
-# --- AWS ---
+# AWS CHECKS
 import scanner.aws_checks.open_ssh as aws_open_ssh
 import scanner.aws_checks.open_ports as aws_open_ports
 import scanner.aws_checks.public_s3 as aws_public_s3
 import scanner.aws_checks.iam_roles as aws_iam_roles
 import scanner.aws_checks.cloudtrail as aws_cloudtrail
 import scanner.aws_checks.ebs_encryption as aws_ebs_encryption
-
 import scanner.aws_checks.all_ports_open as aws_all_ports_open
 import scanner.aws_checks.open_rdp as aws_open_rdp
 import scanner.aws_checks.public_rds as aws_public_rds
 import scanner.aws_checks.rds_encryption as aws_rds_encryption
 import scanner.aws_checks.ebs_unattached as aws_ebs_unattached
 
-# --- AZURE ---
+# AZURE CHECKS
 import scanner.azure_checks.nsg_open_ports as azure_nsg_open_ports
 import scanner.azure_checks.public_storage as azure_public_storage
-
 import scanner.azure_checks.nsg_allow_all as azure_nsg_allow_all
 import scanner.azure_checks.nsg_open_ssh as azure_nsg_open_ssh
 import scanner.azure_checks.nsg_open_rdp as azure_nsg_open_rdp
@@ -29,33 +26,68 @@ import scanner.azure_checks.storage_weak_tls as azure_storage_weak_tls
 import scanner.azure_checks.public_ip as azure_public_ip
 import scanner.azure_checks.defender_disabled as azure_defender_disabled
 
-# --- GCP ---
+# GCP CHECKS
 import scanner.gcp_checks.open_ssh as gcp_open_ssh
 import scanner.gcp_checks.public_storage as gcp_public_storage
 import scanner.gcp_checks.public_vm as gcp_public_vm
 import scanner.gcp_checks.project_ssh_keys as gcp_project_ssh_keys
 import scanner.gcp_checks.iam_roles as gcp_iam_roles
-
 import scanner.gcp_checks.open_firewall_all_ports as gcp_open_all
 import scanner.gcp_checks.unattached_disk as gcp_disk
 import scanner.gcp_checks.static_ip_unused as gcp_ip
 import scanner.gcp_checks.service_account_attached as gcp_sa
 
-# Deduplicate Findings
+
+# HELPERS
+
+def safe_run_check(check, provider):
+    try:
+        result = check()
+
+        if not result:
+            return []
+
+        if not isinstance(result, list):
+            print(f"[{provider} WARNING] {check.__name__} did not return a list")
+            return []
+
+        valid = []
+        for f in result:
+            if isinstance(f, dict) and "issue" in f:
+                valid.append(f)
+            else:
+                print(f"[{provider} WARNING] Invalid finding format in {check.__name__}")
+
+        return valid
+
+    except Exception as e:
+        print(f"[{provider} ERROR] {check.__name__} failed: {e}")
+        traceback.print_exc()
+        return []
+
 def deduplicate_findings(findings):
     seen = set()
-    unique_findings = []
+    unique = []
+
     for f in findings:
-        key = (f.get("provider"), f.get("issue"))
+        provider = (f.get("provider") or "").lower().strip()
+        issue = (f.get("issue") or "").lower().strip()
+        resource_type = (f.get("resource_type") or "").lower().strip()
+        resource_id = (f.get("resource_id") or "").lower().strip()
+
+        key = (provider, issue, resource_type, resource_id)
+
         if key not in seen:
-            unique_findings.append(f)
             seen.add(key)
-    return unique_findings
+            unique.append(f)
 
-# AWS Checks
+    return unique
+
+
+
+# AWS
+
 def run_aws_checks():
-    findings = []
-
     checks = [
         aws_open_ssh.run,
         aws_open_ports.run,
@@ -63,7 +95,6 @@ def run_aws_checks():
         aws_iam_roles.run,
         aws_ebs_encryption.run,
         aws_cloudtrail.run,
-
         aws_all_ports_open.run,
         aws_open_rdp.run,
         aws_public_rds.run,
@@ -71,19 +102,16 @@ def run_aws_checks():
         aws_ebs_unattached.run,
     ]
 
-    for check in checks:
-        try:
-            findings.extend(check())
-        except Exception as e:
-            print(f"[AWS ERROR] {check.__name__} failed: {e}")
-            traceback.print_exc()
-
-    return deduplicate_findings(findings)
-
-# Azure Checks
-def run_azure_checks():
     findings = []
+    for check in checks:
+        findings.extend(safe_run_check(check, "AWS"))
 
+    return findings
+
+
+# AZURE
+
+def run_azure_checks():
     checks = [
         azure_nsg_open_ports.run,
         azure_public_storage.run,
@@ -96,20 +124,16 @@ def run_azure_checks():
         azure_defender_disabled.run,
     ]
 
-    for check in checks:
-        try:
-            findings.extend(check())
-        except Exception as e:
-            print(f"[AZURE ERROR] {check.__name__} failed: {e}")
-            traceback.print_exc()
-
-    return deduplicate_findings(findings)
-
-
-# GCP Checks
-def run_gcp_checks():
     findings = []
+    for check in checks:
+        findings.extend(safe_run_check(check, "AZURE"))
 
+    return findings
+
+
+# GCP
+
+def run_gcp_checks():
     checks = [
         gcp_project_ssh_keys.run,
         gcp_open_ssh.run,
@@ -120,28 +144,52 @@ def run_gcp_checks():
         gcp_open_all.run,
         gcp_disk.run,
         gcp_ip.run,
-
     ]
+    
 
-    for check in checks:
-        try:
-            findings.extend(check())
-        except Exception as e:
-            print(f"[GCP ERROR] {check.__name__} failed: {e}")
-            traceback.print_exc()
-
-    return deduplicate_findings(findings)
-
-# Run All Clouds
-def run_all_checks():
     findings = []
-    findings.extend(run_aws_checks())
-    findings.extend(run_azure_checks())
-    findings.extend(run_gcp_checks())
+    for check in checks:
+        findings.extend(safe_run_check(check, "GCP"))
+
     return findings
 
 
-# Summary & Risk Scoring
+# ACCOUNT-LEVEL CHECKS
+
+def run_account_checks():
+    findings = []
+
+    try:
+        findings.extend(safe_run_check(aws_cloudtrail.run, "AWS"))
+        findings.extend(safe_run_check(azure_defender_disabled.run, "AZURE"))
+        findings.extend(safe_run_check(gcp_iam_roles.run, "GCP"))
+
+    except Exception as e:
+        print(f"[ACCOUNT ERROR] {e}")
+
+    return findings
+
+
+# MAIN ENGINE
+
+def run_all_checks():
+    resource_findings = []
+
+    resource_findings.extend(run_aws_checks())
+    resource_findings.extend(run_azure_checks())
+    resource_findings.extend(run_gcp_checks())
+
+    if len(resource_findings) == 0:
+        print("\n[INFO] No vulnerable resources found.\n")
+
+    account_findings = run_account_checks()
+
+    all_findings = resource_findings + account_findings
+    return deduplicate_findings(all_findings)
+
+
+# SUMMARY
+
 def generate_summary(findings):
     severity_counts = {
         "CRITICAL": 0,
@@ -177,10 +225,9 @@ def generate_summary(findings):
     }
 
 
-# Optional: Save Findings
-def save_findings(filename, findings):
-    import json
+# SAVE RESULTS
 
+def save_findings(filename, findings):
     output = {
         "summary": generate_summary(findings),
         "findings": findings
@@ -190,4 +237,3 @@ def save_findings(filename, findings):
         json.dump(output, f, indent=2)
 
     print(f"[INFO] Findings saved to {filename}")
-
