@@ -1,0 +1,54 @@
+{
+  "summary": {
+    "severity_counts": {
+      "CRITICAL": 0,
+      "HIGH": 4,
+      "MEDIUM": 0,
+      "LOW": 0
+    },
+    "total_findings": 4,
+    "risk_score": 6.0
+  },
+  "findings": [
+    {
+      "provider": "AWS",
+      "resource_type": "cloudtrail",
+      "resource_id": "N/A",
+      "issue": "CloudTrail not enabled",
+      "severity": "HIGH",
+      "description": "No CloudTrail trails are configured",
+      "vuln_id": "cloudtrail_not_enabled",
+      "check": "cloudtrail.py"
+    },
+    {
+      "provider": "AZURE",
+      "resource_type": "Subscription",
+      "resource_id": "value",
+      "issue": "Microsoft Defender not enabled",
+      "severity": "HIGH",
+      "description": "Defender plan appears missing or not properly configured.",
+      "vuln_id": "microsoft_defender_not_enabled",
+      "check": "defender_disabled.py"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "IAM Role",
+      "resource_id": "roles/editor",
+      "issue": "Overly permissive role: roles/editor",
+      "severity": "HIGH",
+      "description": "Role is assigned to 2 member(s).",
+      "vuln_id": "overly_permissive_role:_roles/editor",
+      "check": "iam_roles.py"
+    },
+    {
+      "provider": "GCP",
+      "resource_type": "IAM Role",
+      "resource_id": "roles/owner",
+      "issue": "Overly permissive role: roles/owner",
+      "severity": "HIGH",
+      "description": "Role is assigned to 1 member(s).",
+      "vuln_id": "overly_permissive_role:_roles/owner",
+      "check": "iam_roles.py"
+    }
+  ]
+}

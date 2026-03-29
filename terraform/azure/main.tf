@@ -3,11 +3,6 @@
 # Free Tier Friendly
 # =====================================
 
-# =====================================
-# CloudSentinel Azure Vulnerable Infrastructure
-# Expanded + Free Tier Safe
-# =====================================
-
 terraform {
   required_providers {
     azurerm = {
@@ -24,17 +19,15 @@ provider "azurerm" {
   features {}
 }
 
-# -------------------
 # RESOURCE GROUP
-# -------------------
+
 resource "azurerm_resource_group" "rg" {
   name     = "cloudsentinel-rg"
   location = "centralus"
 }
 
-# -------------------
 # NETWORK
-# -------------------
+
 resource "azurerm_virtual_network" "vnet" {
   name                = "cloudsentinel-vnet"
   location            = azurerm_resource_group.rg.location
@@ -49,15 +42,15 @@ resource "azurerm_subnet" "subnet" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
-# -------------------
 # NSG (MULTI-VULNERABLE)
-# -------------------
+
 resource "azurerm_network_security_group" "nsg" {
   name                = "cloudsentinel-nsg"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
   # CRITICAL: allow all
+
   security_rule {
     name                       = "allow-all"
     priority                   = 100
@@ -103,13 +96,8 @@ resource "azurerm_subnet_network_security_group_association" "assoc" {
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
-# -------------------
-# PUBLIC IP (VULNERABLE)
-# -------------------
 
-# -------------------
 # STORAGE (MULTI-VULNERABLE)
-# -------------------
 resource "random_id" "suffix" {
   byte_length = 2
 }
